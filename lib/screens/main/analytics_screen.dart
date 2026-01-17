@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:fl_chart/fl_chart.dart';
+import '../../core/constants/app_colors.dart';
+import '../../core/constants/app_typography.dart';
+import '../../core/constants/app_spacing.dart';
+import '../../widgets/common/custom_app_bar.dart';
+import '../../widgets/feedback/empty_state.dart';
 import '../../providers/health_records_provider.dart';
 
 class AnalyticsScreen extends StatelessWidget {
@@ -8,14 +13,17 @@ class AnalyticsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Analytics'),
-        backgroundColor: Colors.blue,
-        foregroundColor: Colors.white,
+      backgroundColor:
+          isDark ? AppColors.darkBackground : AppColors.background,
+      appBar: CustomAppBar(
+        title: 'Analytics',
+        showBackButton: true,
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
+        padding: EdgeInsets.all(AppSpacing.lg),
         child: Consumer<HealthRecordsProvider>(
           builder: (context, healthProvider, child) {
             return Column(
@@ -23,62 +31,72 @@ class AnalyticsScreen extends StatelessWidget {
               children: [
                 // Blood Sugar Trends
                 _buildChartSection(
+                  context,
                   'Blood Sugar Trends',
-                  Icons.bloodtype,
-                  Colors.orange,
-                  _buildFBSChart(healthProvider),
+                  Icons.bloodtype_rounded,
+                  AppColors.bloodSugar,
+                  _buildFBSChart(context, healthProvider),
                 ),
 
-                const SizedBox(height: 24),
+                SizedBox(height: AppSpacing.xl),
 
                 // Blood Pressure Trends
                 _buildChartSection(
+                  context,
                   'Blood Pressure Trends',
-                  Icons.favorite,
-                  Colors.red,
-                  _buildBPChart(healthProvider),
+                  Icons.favorite_rounded,
+                  AppColors.bloodPressure,
+                  _buildBPChart(context, healthProvider),
                 ),
 
-                const SizedBox(height: 24),
+                SizedBox(height: AppSpacing.xl),
 
                 // Statistics Cards
-                const Text(
+                Text(
                   'Health Statistics',
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  style: AppTypography.headlineSmall.copyWith(
+                    color: isDark
+                        ? AppColors.darkTextPrimary
+                        : AppColors.textPrimary,
+                  ),
                 ),
-                const SizedBox(height: 16),
+                SizedBox(height: AppSpacing.lg),
 
                 GridView.count(
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
                   crossAxisCount: 2,
-                  crossAxisSpacing: 12,
-                  mainAxisSpacing: 12,
+                  crossAxisSpacing: AppSpacing.md,
+                  mainAxisSpacing: AppSpacing.md,
                   childAspectRatio: 1.5,
                   children: [
                     _buildStatCard(
+                      context,
                       'Avg FBS',
                       _calculateAvgFBS(healthProvider),
                       'mg/dL',
-                      Colors.orange,
+                      AppColors.bloodSugar,
                     ),
                     _buildStatCard(
+                      context,
                       'Latest BP',
                       _getLatestBP(healthProvider),
                       'mmHg',
-                      Colors.red,
+                      AppColors.bloodPressure,
                     ),
                     _buildStatCard(
+                      context,
                       'Total Records',
                       _getTotalRecords(healthProvider).toString(),
                       'entries',
-                      Colors.blue,
+                      AppColors.primary,
                     ),
                     _buildStatCard(
+                      context,
                       'This Month',
                       _getThisMonthRecords(healthProvider).toString(),
                       'new records',
-                      Colors.green,
+                      AppColors.success,
                     ),
                   ],
                 ),
@@ -91,52 +109,64 @@ class AnalyticsScreen extends StatelessWidget {
   }
 
   Widget _buildChartSection(
+    BuildContext context,
     String title,
     IconData icon,
     Color color,
     Widget chart,
   ) {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Icon(icon, color: color),
-                const SizedBox(width: 8),
-                Text(
-                  title,
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    return Container(
+      decoration: BoxDecoration(
+        color: isDark ? AppColors.darkSurface : AppColors.surface,
+        borderRadius: BorderRadius.circular(AppSpacing.radiusLg),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      padding: EdgeInsets.all(AppSpacing.lg),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: EdgeInsets.all(AppSpacing.sm),
+                decoration: BoxDecoration(
+                  color: color.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
                 ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            SizedBox(height: 200, child: chart),
-          ],
-        ),
+                child: Icon(icon, color: color, size: AppSpacing.iconMd),
+              ),
+              SizedBox(width: AppSpacing.md),
+              Text(
+                title,
+                style: AppTypography.titleMedium.copyWith(
+                  color: isDark
+                      ? AppColors.darkTextPrimary
+                      : AppColors.textPrimary,
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: AppSpacing.lg),
+          SizedBox(height: 200, child: chart),
+        ],
       ),
     );
   }
 
-  Widget _buildFBSChart(HealthRecordsProvider provider) {
+  Widget _buildFBSChart(BuildContext context, HealthRecordsProvider provider) {
     if (provider.fbsRecords.isEmpty) {
-      return const Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.show_chart, size: 48, color: Colors.grey),
-            SizedBox(height: 8),
-            Text(
-              'No blood sugar data available',
-              style: TextStyle(color: Colors.grey),
-            ),
-          ],
-        ),
+      return const EmptyState(
+        icon: Icons.show_chart_rounded,
+        message: 'No blood sugar data available',
+        description: 'Start tracking to see trends',
       );
     }
 
@@ -144,43 +174,93 @@ class AnalyticsScreen extends StatelessWidget {
       return FlSpot(entry.key.toDouble(), entry.value.fbsLevel);
     }).toList();
 
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return LineChart(
       LineChartData(
-        gridData: const FlGridData(show: true),
-        titlesData: const FlTitlesData(
-          leftTitles: AxisTitles(sideTitles: SideTitles(showTitles: true)),
-          bottomTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-          rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-          topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+        gridData: FlGridData(
+          show: true,
+          drawVerticalLine: true,
+          getDrawingHorizontalLine: (value) {
+            return FlLine(
+              color: (isDark ? AppColors.darkBorder : AppColors.border)
+                  .withOpacity(0.3),
+              strokeWidth: 1,
+            );
+          },
+          getDrawingVerticalLine: (value) {
+            return FlLine(
+              color: (isDark ? AppColors.darkBorder : AppColors.border)
+                  .withOpacity(0.3),
+              strokeWidth: 1,
+            );
+          },
         ),
-        borderData: FlBorderData(show: true),
+        titlesData: FlTitlesData(
+          leftTitles: AxisTitles(
+            sideTitles: SideTitles(
+              showTitles: true,
+              reservedSize: 40,
+              getTitlesWidget: (value, meta) {
+                return Text(
+                  value.toInt().toString(),
+                  style: AppTypography.bodySmall.copyWith(
+                    color: isDark
+                        ? AppColors.darkTextSecondary
+                        : AppColors.textSecondary,
+                  ),
+                );
+              },
+            ),
+          ),
+          bottomTitles:
+              const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+          rightTitles:
+              const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+          topTitles:
+              const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+        ),
+        borderData: FlBorderData(
+          show: true,
+          border: Border.all(
+            color: isDark ? AppColors.darkBorder : AppColors.border,
+          ),
+        ),
         lineBarsData: [
           LineChartBarData(
             spots: spots,
             isCurved: true,
-            color: Colors.orange,
+            color: AppColors.bloodSugar,
             barWidth: 3,
-            dotData: const FlDotData(show: true),
+            isStrokeCapRound: true,
+            dotData: FlDotData(
+              show: true,
+              getDotPainter: (spot, percent, barData, index) {
+                return FlDotCirclePainter(
+                  radius: 4,
+                  color: AppColors.bloodSugar,
+                  strokeWidth: 2,
+                  strokeColor:
+                      isDark ? AppColors.darkSurface : AppColors.surface,
+                );
+              },
+            ),
+            belowBarData: BarAreaData(
+              show: true,
+              color: AppColors.bloodSugar.withOpacity(0.1),
+            ),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildBPChart(HealthRecordsProvider provider) {
+  Widget _buildBPChart(BuildContext context, HealthRecordsProvider provider) {
     if (provider.bpRecords.isEmpty) {
-      return const Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.show_chart, size: 48, color: Colors.grey),
-            SizedBox(height: 8),
-            Text(
-              'No blood pressure data available',
-              style: TextStyle(color: Colors.grey),
-            ),
-          ],
-        ),
+      return const EmptyState(
+        icon: Icons.show_chart_rounded,
+        message: 'No blood pressure data available',
+        description: 'Start tracking to see trends',
       );
     }
 
@@ -192,69 +272,155 @@ class AnalyticsScreen extends StatelessWidget {
       return FlSpot(entry.key.toDouble(), entry.value.diastolic.toDouble());
     }).toList();
 
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return LineChart(
       LineChartData(
-        gridData: const FlGridData(show: true),
-        titlesData: const FlTitlesData(
-          leftTitles: AxisTitles(sideTitles: SideTitles(showTitles: true)),
-          bottomTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-          rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-          topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+        gridData: FlGridData(
+          show: true,
+          drawVerticalLine: true,
+          getDrawingHorizontalLine: (value) {
+            return FlLine(
+              color: (isDark ? AppColors.darkBorder : AppColors.border)
+                  .withOpacity(0.3),
+              strokeWidth: 1,
+            );
+          },
+          getDrawingVerticalLine: (value) {
+            return FlLine(
+              color: (isDark ? AppColors.darkBorder : AppColors.border)
+                  .withOpacity(0.3),
+              strokeWidth: 1,
+            );
+          },
         ),
-        borderData: FlBorderData(show: true),
+        titlesData: FlTitlesData(
+          leftTitles: AxisTitles(
+            sideTitles: SideTitles(
+              showTitles: true,
+              reservedSize: 40,
+              getTitlesWidget: (value, meta) {
+                return Text(
+                  value.toInt().toString(),
+                  style: AppTypography.bodySmall.copyWith(
+                    color: isDark
+                        ? AppColors.darkTextSecondary
+                        : AppColors.textSecondary,
+                  ),
+                );
+              },
+            ),
+          ),
+          bottomTitles:
+              const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+          rightTitles:
+              const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+          topTitles:
+              const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+        ),
+        borderData: FlBorderData(
+          show: true,
+          border: Border.all(
+            color: isDark ? AppColors.darkBorder : AppColors.border,
+          ),
+        ),
         lineBarsData: [
           LineChartBarData(
             spots: systolicSpots,
             isCurved: true,
-            color: Colors.red,
+            color: AppColors.bloodPressure,
             barWidth: 3,
-            dotData: const FlDotData(show: true),
+            isStrokeCapRound: true,
+            dotData: FlDotData(
+              show: true,
+              getDotPainter: (spot, percent, barData, index) {
+                return FlDotCirclePainter(
+                  radius: 4,
+                  color: AppColors.bloodPressure,
+                  strokeWidth: 2,
+                  strokeColor:
+                      isDark ? AppColors.darkSurface : AppColors.surface,
+                );
+              },
+            ),
+            belowBarData: BarAreaData(
+              show: true,
+              color: AppColors.bloodPressure.withOpacity(0.1),
+            ),
           ),
           LineChartBarData(
             spots: diastolicSpots,
             isCurved: true,
-            color: Colors.blue,
+            color: AppColors.primary,
             barWidth: 3,
-            dotData: const FlDotData(show: true),
+            isStrokeCapRound: true,
+            dotData: FlDotData(
+              show: true,
+              getDotPainter: (spot, percent, barData, index) {
+                return FlDotCirclePainter(
+                  radius: 4,
+                  color: AppColors.primary,
+                  strokeWidth: 2,
+                  strokeColor:
+                      isDark ? AppColors.darkSurface : AppColors.surface,
+                );
+              },
+            ),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildStatCard(String title, String value, String unit, Color color) {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              title,
-              style: const TextStyle(
-                fontSize: 14,
-                color: Colors.grey,
-                fontWeight: FontWeight.w500,
-              ),
-              textAlign: TextAlign.center,
+  Widget _buildStatCard(
+      BuildContext context, String title, String value, String unit, Color color) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    return Container(
+      decoration: BoxDecoration(
+        color: isDark ? AppColors.darkSurface : AppColors.surface,
+        borderRadius: BorderRadius.circular(AppSpacing.radiusLg),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      padding: EdgeInsets.all(AppSpacing.lg),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(
+            title,
+            style: AppTypography.labelMedium.copyWith(
+              color: isDark
+                  ? AppColors.darkTextSecondary
+                  : AppColors.textSecondary,
             ),
-            const SizedBox(height: 8),
-            Text(
-              value,
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-                color: color,
-              ),
-              textAlign: TextAlign.center,
+            textAlign: TextAlign.center,
+          ),
+          SizedBox(height: AppSpacing.sm),
+          Text(
+            value,
+            style: AppTypography.headlineMedium.copyWith(
+              color: color,
+              fontWeight: FontWeight.bold,
             ),
-            Text(
-              unit,
-              style: const TextStyle(fontSize: 12, color: Colors.grey),
-              textAlign: TextAlign.center,
+            textAlign: TextAlign.center,
+          ),
+          SizedBox(height: AppSpacing.xs),
+          Text(
+            unit,
+            style: AppTypography.bodySmall.copyWith(
+              color: isDark
+                  ? AppColors.darkTextSecondary
+                  : AppColors.textSecondary,
             ),
-          ],
-        ),
+            textAlign: TextAlign.center,
+          ),
+        ],
       ),
     );
   }
