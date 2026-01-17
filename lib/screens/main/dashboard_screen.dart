@@ -174,7 +174,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                 healthProvider.fbcRecords.last.haemoglobin,
                                 user.gender,
                               ).color
-                            : AppColors.haemoglobin,
+                            : AppColors.bloodCount,
                         subtitle: healthProvider.fbcRecords.isNotEmpty
                             ? '${healthProvider.fbcRecords.length} FBC records'
                             : 'No data',
@@ -190,62 +190,40 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             ? HealthAnalysis.analyzeTotalCholesterol(
                                 healthProvider.lipidRecords.last.totalCholesterol,
                               ).color
-                            : AppColors.cholesterol,
+                            : AppColors.lipidProfile,
                         subtitle: healthProvider.lipidRecords.isNotEmpty
                             ? '${healthProvider.lipidRecords.length} records'
                             : 'No data',
                       ),
                     ],
                   ),
-                        color: healthProvider.urineRecords.isNotEmpty
-                            ? HealthAnalysis.analyzeSpecificGravity(
-                                healthProvider
-                                    .urineRecords
-                                    .last
-                                    .specificGravity,
-                              ).color
-                            : Colors.blue,
-                        latestValue: healthProvider.urineRecords.isNotEmpty
-                            ? 'SG: ${healthProvider.urineRecords.last.specificGravity.toStringAsFixed(3)}'
-                            : 'No data',
-                      ),
-                    ],
-                  ),
-
-                  const SizedBox(height: 24),
+                  const SizedBox(height: AppSpacing.xl),
 
                   // Recent Reports Section
-                  const Text(
-                    'Recent Reports',
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 16),
+                  const SectionHeader(title: 'Recent Reports'),
+                  const SizedBox(height: AppSpacing.md),
 
                   if (healthProvider.reports.isEmpty)
                     Card(
                       child: Padding(
-                        padding: const EdgeInsets.all(16.0),
+                        padding: const EdgeInsets.all(AppSpacing.xl),
                         child: Column(
                           children: [
                             Icon(
                               Icons.description_outlined,
-                              size: 48,
-                              color: Colors.grey.shade400,
+                              size: AppSpacing.iconXl,
+                              color: AppColors.textTertiary,
                             ),
-                            const SizedBox(height: 16),
-                            const Text(
+                            const SizedBox(height: AppSpacing.lg),
+                            Text(
                               'No reports available',
-                              style: TextStyle(
-                                fontSize: 16,
-                                color: Colors.grey,
-                              ),
+                              style: AppTypography.body1,
                             ),
-                            const SizedBox(height: 8),
-                            const Text(
+                            const SizedBox(height: AppSpacing.sm),
+                            Text(
                               'Add some health records to see comprehensive reports',
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: Colors.grey,
+                              style: AppTypography.body2.copyWith(
+                                color: AppColors.textSecondary,
                               ),
                               textAlign: TextAlign.center,
                             ),
@@ -256,29 +234,34 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   else
                     ...healthProvider.reports.take(3).map((report) {
                       return Card(
-                        margin: const EdgeInsets.only(bottom: 8),
+                        margin: const EdgeInsets.only(bottom: AppSpacing.sm),
                         child: ListTile(
                           leading: CircleAvatar(
-                            backgroundColor: Colors.blue.shade100,
+                            backgroundColor: AppColors.primary.withOpacity(0.1),
                             child: Text(
                               '${report.testCount}',
-                              style: const TextStyle(
+                              style: AppTypography.body1.copyWith(
                                 fontWeight: FontWeight.bold,
-                                color: Colors.blue,
+                                color: AppColors.primary,
                               ),
                             ),
                           ),
                           title: Text(
                             'Report - ${report.reportDate}',
-                            style: const TextStyle(fontWeight: FontWeight.w500),
+                            style: AppTypography.body1.copyWith(
+                              fontWeight: FontWeight.w500,
+                            ),
                           ),
                           subtitle: Text(
                             '${report.testCount} test(s) recorded',
-                            style: TextStyle(color: Colors.grey.shade600),
+                            style: AppTypography.body2.copyWith(
+                              color: AppColors.textSecondary,
+                            ),
                           ),
-                          trailing: const Icon(
+                          trailing: Icon(
                             Icons.arrow_forward_ios,
-                            size: 16,
+                            size: AppSpacing.iconSm,
+                            color: AppColors.textTertiary,
                           ),
                           onTap: () {
                             _showReportDetails(context, report);
