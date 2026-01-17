@@ -60,73 +60,79 @@ class AllRecordsScreen extends StatelessWidget {
     final allRecords = <Map<String, dynamic>>[];
 
     for (final record in provider.bpRecords) {
+      final testDate = DateTime.tryParse(record.testDate) ?? DateTime.now();
       allRecords.add({
         'type': 'Blood Pressure',
         'icon': Icons.favorite_rounded,
         'color': AppColors.bloodPressure,
         'value': record.bpLevel,
         'unit': 'mmHg',
-        'date': record.testDate,
+        'date': testDate,
       });
     }
 
     for (final record in provider.fbsRecords) {
+      final testDate = DateTime.tryParse(record.testDate) ?? DateTime.now();
       allRecords.add({
         'type': 'Blood Sugar',
         'icon': Icons.water_drop_rounded,
         'color': AppColors.bloodSugar,
         'value': record.fbsLevel.toStringAsFixed(0),
         'unit': 'mg/dL',
-        'date': record.testDate,
+        'date': testDate,
       });
     }
 
     for (final record in provider.fbcRecords) {
+      final testDate = DateTime.tryParse(record.testDate) ?? DateTime.now();
       allRecords.add({
         'type': 'Blood Count',
         'icon': Icons.science_rounded,
         'color': AppColors.bloodCount,
         'value': 'Hb ${record.haemoglobin.toStringAsFixed(1)}',
         'unit': 'g/dL',
-        'date': record.testDate,
+        'date': testDate,
       });
     }
 
     for (final record in provider.lipidRecords) {
+      final testDate = DateTime.tryParse(record.testDate) ?? DateTime.now();
       allRecords.add({
         'type': 'Lipid Profile',
         'icon': Icons.monitor_heart_rounded,
         'color': AppColors.lipidProfile,
         'value': 'TC ${record.totalCholesterol.toStringAsFixed(0)}',
         'unit': 'mg/dL',
-        'date': record.testDate,
+        'date': testDate,
       });
     }
 
     for (final record in provider.liverRecords) {
+      final testDate = DateTime.tryParse(record.testDate) ?? DateTime.now();
       allRecords.add({
         'type': 'Liver Profile',
         'icon': Icons.local_hospital_rounded,
         'color': AppColors.liverProfile,
         'value': 'SGPT ${record.sgpt.toStringAsFixed(0)}',
         'unit': 'U/L',
-        'date': record.testDate,
+        'date': testDate,
       });
     }
 
     for (final record in provider.urineRecords) {
+      final testDate = DateTime.tryParse(record.testDate) ?? DateTime.now();
       allRecords.add({
         'type': 'Urine Report',
         'icon': Icons.opacity_rounded,
         'color': AppColors.urineReport,
         'value': 'SG ${record.specificGravity.toStringAsFixed(3)}',
         'unit': '',
-        'date': record.testDate,
+        'date': testDate,
       });
     }
 
     // Sort by date (most recent first)
-    allRecords.sort((a, b) => b['date'].compareTo(a['date']));
+    allRecords.sort((a, b) => (b['date'] as DateTime).compareTo(a['date'] as DateTime));
 
     if (allRecords.isEmpty) {
       return Center(
