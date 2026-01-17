@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import '../core/constants/app_colors.dart';
 import '../core/constants/app_spacing.dart';
 import '../core/constants/app_typography.dart';
@@ -19,14 +18,11 @@ class SplashScreen extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               // Pulse Icon
-              SvgPicture.asset(
-                'assets/images/pulse.svg',
+              Image.asset(
+                'assets/images/heart-rate.png',
                 width: 120,
                 height: 120,
-                colorFilter: const ColorFilter.mode(
-                  Colors.white,
-                  BlendMode.srcIn,
-                ),
+                color: Colors.white,
               ),
               const SizedBox(height: AppSpacing.xxxl),
               // App Name
