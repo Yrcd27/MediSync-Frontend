@@ -4,9 +4,6 @@ import 'package:intl/intl.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/health_records_provider.dart';
 import '../../models/blood_pressure.dart';
-import '../../widgets/custom_text_field.dart';
-import '../../widgets/custom_button.dart';
-import '../../utils/health_analysis.dart';
 
 class BloodPressureRecordsScreen extends StatefulWidget {
   const BloodPressureRecordsScreen({super.key});
@@ -19,10 +16,11 @@ class BloodPressureRecordsScreen extends StatefulWidget {
 class _BloodPressureRecordsScreenState
     extends State<BloodPressureRecordsScreen> {
   final _formKey = GlobalKey<FormState>();
+  final _testDateController = TextEditingController();
   final _systolicController = TextEditingController();
   final _diastolicController = TextEditingController();
-  final _testDateController = TextEditingController();
   final _imageUrlController = TextEditingController();
+  bool _isSubmitting = false;
 
   @override
   void initState() {
@@ -32,9 +30,9 @@ class _BloodPressureRecordsScreenState
 
   @override
   void dispose() {
+    _testDateController.dispose();
     _systolicController.dispose();
     _diastolicController.dispose();
-    _testDateController.dispose();
     _imageUrlController.dispose();
     super.dispose();
   }
@@ -53,46 +51,62 @@ class _BloodPressureRecordsScreenState
   }
 
   void _addRecord() async {
-    if (_formKey.currentState!.validate()) {
-      final authProvider = context.read<AuthProvider>();
-      final healthProvider = context.read<HealthRecordsProvider>();
+    if (_formKey.currentState!.validate() && !_isSubmitting) {
+      setState(() {
+        _isSubmitting = true;
+      });
 
-      if (authProvider.currentUser == null) return;
+      try {
+        final authProvider = context.read<AuthProvider>();
+        final healthProvider = context.read<HealthRecordsProvider>();
 
-      // Create BP record using the factory method that combines systolic/diastolic
-      final record = BloodPressure.create(
-        testDate: _testDateController.text,
-        systolic: int.parse(_systolicController.text),
-        diastolic: int.parse(_diastolicController.text),
-        imageUrl:
-            _imageUrlController.text.isEmpty ? null : _imageUrlController.text,
-      );
+        if (authProvider.currentUser == null) return;
 
-      final success = await healthProvider.addBPRecord(
-          record, authProvider.currentUser!.id);
+        final record = BloodPressure(
+          id: 0,
+          testDate: _testDateController.text,
+          bpLevel: '${_systolicController.text}/${_diastolicController.text}',
+          imageUrl: _imageUrlController.text.isEmpty
+              ? null
+              : _imageUrlController.text,
+        );
 
-      if (mounted) {
-        if (success) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Blood pressure record added successfully!'),
-              backgroundColor: Colors.green,
-            ),
-          );
+        final success = await healthProvider.addBPRecord(
+          record,
+          authProvider.currentUser!.id,
+        );
 
-          // Clear form
-          _systolicController.clear();
-          _diastolicController.clear();
-          _imageUrlController.clear();
-          _testDateController.text =
-              DateFormat('yyyy-MM-dd').format(DateTime.now());
-        } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(healthProvider.errorMessage ?? 'Error adding record'),
-              backgroundColor: Colors.red,
-            ),
-          );
+        if (mounted) {
+          if (success) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Blood pressure record added successfully!'),
+                backgroundColor: Colors.green,
+              ),
+            );
+
+            _systolicController.clear();
+            _diastolicController.clear();
+            _imageUrlController.clear();
+            _testDateController.text = DateFormat(
+              'yyyy-MM-dd',
+            ).format(DateTime.now());
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(
+                  healthProvider.errorMessage ?? 'Error adding record',
+                ),
+                backgroundColor: Colors.red,
+              ),
+            );
+          }
+        }
+      } finally {
+        if (mounted) {
+          setState(() {
+            _isSubmitting = false;
+          });
         }
       }
     }
@@ -100,230 +114,370 @@ class _BloodPressureRecordsScreenState
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        children: [
-          // Add Record Form
-          Card(
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    const Text(
-                      'Add Blood Pressure Record',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.blue,
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    GestureDetector(
-                      onTap: _selectDate,
-                      child: AbsorbPointer(
-                        child: CustomTextField(
-                          controller: _testDateController,
-                          label: 'Test Date',
-                          hint: 'Select test date',
-                          suffixIcon: const Icon(Icons.calendar_today),
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Please select test date';
-                            }
-                            return null;
-                          },
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: CustomTextField(
-                            controller: _systolicController,
-                            label: 'Systolic (mmHg)',
-                            hint: 'e.g., 120',
-                            keyboardType: TextInputType.number,
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return 'Required';
-                              }
-                              final systolic = int.tryParse(value);
-                              if (systolic == null ||
-                                  systolic < 50 ||
-                                  systolic > 300) {
-                                return 'Invalid (50-300)';
-                              }
-                              return null;
-                            },
-                          ),
-                        ),
-                        const SizedBox(width: 16),
-                        Expanded(
-                          child: CustomTextField(
-                            controller: _diastolicController,
-                            label: 'Diastolic (mmHg)',
-                            hint: 'e.g., 80',
-                            keyboardType: TextInputType.number,
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return 'Required';
-                              }
-                              final diastolic = int.tryParse(value);
-                              if (diastolic == null ||
-                                  diastolic < 30 ||
-                                  diastolic > 200) {
-                                return 'Invalid (30-200)';
-                              }
-                              return null;
-                            },
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 16),
-                    CustomTextField(
-                      controller: _imageUrlController,
-                      label: 'Report Image URL (Optional)',
-                      hint: 'Enter image URL or file path',
-                    ),
-                    const SizedBox(height: 16),
-                    CustomButton(
-                      text: 'Add Record',
-                      onPressed: _addRecord,
-                    ),
-                  ],
-                ),
-              ),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return SingleChildScrollView(
+          physics: const BouncingScrollPhysics(),
+          child: Padding(
+            padding: EdgeInsets.symmetric(
+              horizontal: constraints.maxWidth * 0.02,
+              vertical: 8.0,
             ),
-          ),
-
-          const SizedBox(height: 16),
-
-          // Records List
-          Expanded(
-            child: Consumer<HealthRecordsProvider>(
-              builder: (context, healthProvider, child) {
-                if (healthProvider.bpRecords.isEmpty) {
-                  return const Card(
-                    child: Center(
+            child: Column(
+              children: [
+                Card(
+                  elevation: 2,
+                  child: Padding(
+                    padding: const EdgeInsets.all(12.0),
+                    child: Form(
+                      key: _formKey,
                       child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
-                          Icon(
-                            Icons.favorite_outline,
-                            size: 64,
-                            color: Colors.grey,
-                          ),
-                          SizedBox(height: 16),
                           Text(
-                            'No blood pressure records yet',
-                            style: TextStyle(
-                              fontSize: 18,
-                              color: Colors.grey,
+                            'Add Blood Pressure Record',
+                            style: Theme.of(context).textTheme.titleMedium
+                                ?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.purple,
+                                ),
+                          ),
+                          const SizedBox(height: 12),
+
+                          InkWell(
+                            onTap: _selectDate,
+                            child: InputDecorator(
+                              decoration: InputDecoration(
+                                labelText: 'Test Date',
+                                suffixIcon: const Icon(
+                                  Icons.calendar_today,
+                                  size: 20,
+                                ),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                contentPadding: const EdgeInsets.symmetric(
+                                  horizontal: 12,
+                                  vertical: 8,
+                                ),
+                              ),
+                              child: Text(
+                                _testDateController.text,
+                                style: const TextStyle(fontSize: 14),
+                              ),
                             ),
                           ),
-                          SizedBox(height: 8),
-                          Text(
-                            'Add your first blood pressure reading above',
-                            style: TextStyle(
-                              color: Colors.grey,
+                          const SizedBox(height: 8),
+
+                          LayoutBuilder(
+                            builder: (context, constraints) {
+                              final isWide = constraints.maxWidth > 300;
+                              if (isWide) {
+                                return Row(
+                                  children: [
+                                    Expanded(
+                                      child: TextFormField(
+                                        controller: _systolicController,
+                                        decoration: InputDecoration(
+                                          labelText: 'Systolic (mmHg)',
+                                          hintText: '120',
+                                          border: OutlineInputBorder(
+                                            borderRadius: BorderRadius.circular(
+                                              8,
+                                            ),
+                                          ),
+                                          contentPadding:
+                                              const EdgeInsets.symmetric(
+                                                horizontal: 12,
+                                                vertical: 8,
+                                              ),
+                                        ),
+                                        keyboardType:
+                                            const TextInputType.numberWithOptions(
+                                              decimal: true,
+                                            ),
+                                        style: const TextStyle(fontSize: 14),
+                                        validator: (value) {
+                                          if (value == null || value.isEmpty)
+                                            return 'Required';
+                                          final val = double.tryParse(value);
+                                          if (val == null ||
+                                              val < 80 ||
+                                              val > 200)
+                                            return 'Invalid';
+                                          return null;
+                                        },
+                                      ),
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Expanded(
+                                      child: TextFormField(
+                                        controller: _diastolicController,
+                                        decoration: InputDecoration(
+                                          labelText: 'Diastolic (mmHg)',
+                                          hintText: '80',
+                                          border: OutlineInputBorder(
+                                            borderRadius: BorderRadius.circular(
+                                              8,
+                                            ),
+                                          ),
+                                          contentPadding:
+                                              const EdgeInsets.symmetric(
+                                                horizontal: 12,
+                                                vertical: 8,
+                                              ),
+                                        ),
+                                        keyboardType:
+                                            const TextInputType.numberWithOptions(
+                                              decimal: true,
+                                            ),
+                                        style: const TextStyle(fontSize: 14),
+                                        validator: (value) {
+                                          if (value == null || value.isEmpty)
+                                            return 'Required';
+                                          final val = double.tryParse(value);
+                                          if (val == null ||
+                                              val < 50 ||
+                                              val > 130)
+                                            return 'Invalid';
+                                          return null;
+                                        },
+                                      ),
+                                    ),
+                                  ],
+                                );
+                              } else {
+                                return Column(
+                                  children: [
+                                    TextFormField(
+                                      controller: _systolicController,
+                                      decoration: InputDecoration(
+                                        labelText: 'Systolic (mmHg)',
+                                        hintText: '120',
+                                        border: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(
+                                            8,
+                                          ),
+                                        ),
+                                        contentPadding:
+                                            const EdgeInsets.symmetric(
+                                              horizontal: 12,
+                                              vertical: 8,
+                                            ),
+                                      ),
+                                      keyboardType:
+                                          const TextInputType.numberWithOptions(
+                                            decimal: true,
+                                          ),
+                                      style: const TextStyle(fontSize: 14),
+                                      validator: (value) {
+                                        if (value == null || value.isEmpty)
+                                          return 'Required';
+                                        final val = double.tryParse(value);
+                                        if (val == null ||
+                                            val < 80 ||
+                                            val > 200)
+                                          return 'Invalid';
+                                        return null;
+                                      },
+                                    ),
+                                    const SizedBox(height: 8),
+                                    TextFormField(
+                                      controller: _diastolicController,
+                                      decoration: InputDecoration(
+                                        labelText: 'Diastolic (mmHg)',
+                                        hintText: '80',
+                                        border: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(
+                                            8,
+                                          ),
+                                        ),
+                                        contentPadding:
+                                            const EdgeInsets.symmetric(
+                                              horizontal: 12,
+                                              vertical: 8,
+                                            ),
+                                      ),
+                                      keyboardType:
+                                          const TextInputType.numberWithOptions(
+                                            decimal: true,
+                                          ),
+                                      style: const TextStyle(fontSize: 14),
+                                      validator: (value) {
+                                        if (value == null || value.isEmpty)
+                                          return 'Required';
+                                        final val = double.tryParse(value);
+                                        if (val == null ||
+                                            val < 50 ||
+                                            val > 130)
+                                          return 'Invalid';
+                                        return null;
+                                      },
+                                    ),
+                                  ],
+                                );
+                              }
+                            },
+                          ),
+                          const SizedBox(height: 8),
+
+                          TextFormField(
+                            controller: _imageUrlController,
+                            decoration: InputDecoration(
+                              labelText: 'Report Image (Optional)',
+                              hintText: 'URL or file path',
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              contentPadding: const EdgeInsets.symmetric(
+                                horizontal: 12,
+                                vertical: 8,
+                              ),
+                            ),
+                            style: const TextStyle(fontSize: 14),
+                          ),
+                          const SizedBox(height: 12),
+
+                          SizedBox(
+                            height: 56,
+                            child: ElevatedButton(
+                              onPressed: _addRecord,
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.purple,
+                                foregroundColor: Colors.white,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                              ),
+                              child: _isSubmitting
+                                  ? const SizedBox(
+                                      height: 20,
+                                      width: 20,
+                                      child: CircularProgressIndicator(
+                                        color: Colors.white,
+                                        strokeWidth: 2,
+                                      ),
+                                    )
+                                  : const Text(
+                                      'Add Record',
+                                      style: TextStyle(fontSize: 16),
+                                    ),
                             ),
                           ),
                         ],
                       ),
                     ),
-                  );
-                }
+                  ),
+                ),
 
-                return ListView.builder(
-                  itemCount: healthProvider.bpRecords.length,
-                  itemBuilder: (context, index) {
-                    final record = healthProvider
-                        .bpRecords[healthProvider.bpRecords.length - 1 - index];
-                    final analysis = HealthAnalysis.analyzeBloodPressure(record);
+                const SizedBox(height: 8),
 
-                    return Card(
-                      margin: const EdgeInsets.only(bottom: 8),
-                      child: ListTile(
-                        leading: CircleAvatar(
-                          backgroundColor: analysis.color,
-                          child: const Icon(
-                            Icons.favorite,
-                            color: Colors.white,
+                Consumer<HealthRecordsProvider>(
+                  builder: (context, healthProvider, child) {
+                    if (healthProvider.bpRecords.isEmpty) {
+                      return Card(
+                        child: Container(
+                          padding: const EdgeInsets.all(20),
+                          child: const Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                Icons.favorite_border,
+                                size: 48,
+                                color: Colors.grey,
+                              ),
+                              SizedBox(height: 8),
+                              Text(
+                                'No records yet',
+                                style: TextStyle(color: Colors.grey),
+                              ),
+                            ],
                           ),
                         ),
-                        title: Text(
-                          '${record.bpLevel} mmHg',
-                          style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16,
-                          ),
-                        ),
-                        subtitle: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text('Date: ${record.testDate}'),
-                            Text(
-                              analysis.statusText,
-                              style: TextStyle(
-                                color: analysis.color,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                          ],
-                        ),
-                        trailing: PopupMenuButton(
-                          itemBuilder: (context) => [
-                            const PopupMenuItem(
-                              value: 'delete',
-                              child: Row(
-                                children: [
-                                  Icon(Icons.delete, color: Colors.red),
-                                  SizedBox(width: 8),
-                                  Text('Delete'),
-                                ],
-                              ),
-                            ),
-                          ],
-                          onSelected: (value) async {
-                            if (value == 'delete') {
-                              final confirm = await showDialog<bool>(
-                                context: context,
-                                builder: (ctx) => AlertDialog(
-                                  title: const Text('Delete Record'),
-                                  content: const Text('Are you sure you want to delete this record?'),
-                                  actions: [
-                                    TextButton(
-                                      onPressed: () => Navigator.pop(ctx, false),
-                                      child: const Text('Cancel'),
-                                    ),
-                                    TextButton(
-                                      onPressed: () => Navigator.pop(ctx, true),
-                                      child: const Text('Delete', style: TextStyle(color: Colors.red)),
-                                    ),
-                                  ],
-                                ),
-                              );
-                              if (confirm == true) {
-                                await healthProvider.deleteBPRecord(record.id);
-                              }
-                            }
-                          },
-                        ),
-                      ),
+                      );
+                    }
+
+                    return ListView.builder(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemCount: healthProvider.bpRecords.length,
+                      itemBuilder: (context, index) {
+                        final record =
+                            healthProvider.bpRecords[healthProvider
+                                    .bpRecords
+                                    .length -
+                                1 -
+                                index];
+                        return _buildCompactRecordCard(record);
+                      },
                     );
                   },
-                );
-              },
+                ),
+              ],
             ),
           ),
-        ],
+        );
+      },
+    );
+  }
+
+  Widget _buildCompactRecordCard(BloodPressure record) {
+    return Card(
+      margin: const EdgeInsets.only(bottom: 4),
+      child: ListTile(
+        leading: CircleAvatar(
+          radius: 16,
+          backgroundColor: _getBPColor(
+            record.systolic.toDouble(),
+            record.diastolic.toDouble(),
+          ),
+          child: const Icon(Icons.favorite, color: Colors.white, size: 16),
+        ),
+        title: Text(
+          '${record.systolic.toStringAsFixed(0)}/${record.diastolic.toStringAsFixed(0)} mmHg',
+          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+        ),
+        subtitle: Text(
+          DateFormat('MMM dd, yyyy').format(DateTime.parse(record.testDate)),
+          style: const TextStyle(fontSize: 12),
+        ),
+        trailing: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+          decoration: BoxDecoration(
+            color: _getBPColor(
+              record.systolic.toDouble(),
+              record.diastolic.toDouble(),
+            ).withOpacity(0.1),
+            borderRadius: BorderRadius.circular(4),
+          ),
+          child: Text(
+            _getBPStatus(
+              record.systolic.toDouble(),
+              record.diastolic.toDouble(),
+            ),
+            style: TextStyle(
+              color: _getBPColor(
+                record.systolic.toDouble(),
+                record.diastolic.toDouble(),
+              ),
+              fontWeight: FontWeight.bold,
+              fontSize: 11,
+            ),
+          ),
+        ),
       ),
     );
+  }
+
+  Color _getBPColor(double systolic, double diastolic) {
+    if (systolic < 120 && diastolic < 80) return Colors.green;
+    if (systolic < 140 || diastolic < 90) return Colors.orange;
+    return Colors.red;
+  }
+
+  String _getBPStatus(double systolic, double diastolic) {
+    if (systolic < 120 && diastolic < 80) return 'Normal';
+    if (systolic < 140 || diastolic < 90) return 'Elevated';
+    return 'High';
   }
 }

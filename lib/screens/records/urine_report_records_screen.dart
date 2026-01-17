@@ -4,9 +4,6 @@ import 'package:intl/intl.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/health_records_provider.dart';
 import '../../models/urine_report.dart';
-import '../../widgets/custom_text_field.dart';
-import '../../widgets/custom_button.dart';
-import '../../utils/health_analysis.dart';
 
 class UrineReportRecordsScreen extends StatefulWidget {
   const UrineReportRecordsScreen({super.key});
@@ -22,10 +19,12 @@ class _UrineReportRecordsScreenState extends State<UrineReportRecordsScreen> {
   final _specificGravityController = TextEditingController();
   final _imageUrlController = TextEditingController();
 
-  String _selectedColor = 'Pale Yellow';
+  String _selectedColor = 'Yellow';
   String _selectedAppearance = 'Clear';
   String _selectedProtein = 'Negative';
   String _selectedSugar = 'Negative';
+
+  bool _isSubmitting = false;
 
   final List<String> _colorOptions = [
     'Pale Yellow',
@@ -37,36 +36,30 @@ class _UrineReportRecordsScreenState extends State<UrineReportRecordsScreen> {
     'Clear',
   ];
 
-  final List<String> _appearanceOptions = [
-    'Clear',
-    'Slightly Cloudy',
-    'Cloudy',
-    'Turbid',
-  ];
+  final List<String> _appearanceOptions = ['Clear', 'Cloudy', 'Turbid', 'Hazy'];
 
   final List<String> _proteinOptions = [
     'Negative',
     'Trace',
-    '+',
-    '++',
-    '+++',
-    '++++',
+    '1+',
+    '2+',
+    '3+',
+    '4+',
   ];
 
   final List<String> _sugarOptions = [
     'Negative',
     'Trace',
-    '+',
-    '++',
-    '+++',
-    '++++',
+    '1+',
+    '2+',
+    '3+',
+    '4+',
   ];
 
   @override
   void initState() {
     super.initState();
     _testDateController.text = DateFormat('yyyy-MM-dd').format(DateTime.now());
-    _specificGravityController.text = '1.020'; // Normal default
   }
 
   @override
@@ -91,59 +84,71 @@ class _UrineReportRecordsScreenState extends State<UrineReportRecordsScreen> {
   }
 
   void _addRecord() async {
-    if (_formKey.currentState!.validate()) {
-      final authProvider = context.read<AuthProvider>();
-      final healthProvider = context.read<HealthRecordsProvider>();
+    if (_formKey.currentState!.validate() && !_isSubmitting) {
+      setState(() {
+        _isSubmitting = true;
+      });
 
-      if (authProvider.currentUser == null) return;
+      try {
+        final authProvider = context.read<AuthProvider>();
+        final healthProvider = context.read<HealthRecordsProvider>();
 
-      final record = UrineReport(
-        id: 0,
-        testDate: _testDateController.text,
-        color: _selectedColor,
-        appearance: _selectedAppearance,
-        protein: _selectedProtein,
-        sugar: _selectedSugar,
-        specificGravity: double.parse(_specificGravityController.text),
-        imageUrl: _imageUrlController.text.isEmpty
-            ? null
-            : _imageUrlController.text,
-      );
+        if (authProvider.currentUser == null) return;
 
-      final success = await healthProvider.addUrineRecord(
-        record,
-        authProvider.currentUser!.id,
-      );
+        final record = UrineReport(
+          id: 0,
+          testDate: _testDateController.text,
+          color: _selectedColor,
+          appearance: _selectedAppearance,
+          protein: _selectedProtein,
+          sugar: _selectedSugar,
+          specificGravity: _specificGravityController.text.isNotEmpty
+              ? double.parse(_specificGravityController.text)
+              : 1.020, // Default value if not provided
+          imageUrl: _imageUrlController.text.isEmpty
+              ? null
+              : _imageUrlController.text,
+        );
 
-      if (mounted) {
-        if (success) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Urine report record added successfully!'),
-              backgroundColor: Colors.green,
-            ),
-          );
+        final success = await healthProvider.addUrineRecord(
+          record,
+          authProvider.currentUser!.id,
+        );
 
-          // Reset to defaults
-          _selectedColor = 'Pale Yellow';
-          _selectedAppearance = 'Clear';
-          _selectedProtein = 'Negative';
-          _selectedSugar = 'Negative';
-          _specificGravityController.text = '1.020';
-          _imageUrlController.clear();
-          _testDateController.text = DateFormat(
-            'yyyy-MM-dd',
-          ).format(DateTime.now());
-          setState(() {});
-        } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                healthProvider.errorMessage ?? 'Error adding record',
+        if (mounted) {
+          if (success) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Urine report record added successfully!'),
+                backgroundColor: Colors.green,
               ),
-              backgroundColor: Colors.red,
-            ),
-          );
+            );
+
+            _selectedColor = 'Yellow';
+            _selectedAppearance = 'Clear';
+            _selectedProtein = 'Negative';
+            _selectedSugar = 'Negative';
+            _specificGravityController.clear();
+            _imageUrlController.clear();
+            _testDateController.text = DateFormat(
+              'yyyy-MM-dd',
+            ).format(DateTime.now());
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(
+                  healthProvider.errorMessage ?? 'Error adding record',
+                ),
+                backgroundColor: Colors.red,
+              ),
+            );
+          }
+        }
+      } finally {
+        if (mounted) {
+          setState(() {
+            _isSubmitting = false;
+          });
         }
       }
     }
@@ -153,316 +158,325 @@ class _UrineReportRecordsScreenState extends State<UrineReportRecordsScreen> {
     required String label,
     required String value,
     required List<String> options,
-    required Function(String?) onChanged,
+    required ValueChanged<String?> onChanged,
   }) {
     return DropdownButtonFormField<String>(
-      value: value,
       decoration: InputDecoration(
         labelText: label,
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-        filled: true,
-        fillColor: Colors.grey.shade50,
+        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       ),
-      items: options
-          .map((option) => DropdownMenuItem(value: option, child: Text(option)))
-          .toList(),
+      value: value,
+      style: const TextStyle(fontSize: 14, color: Colors.black),
+      items: options.map((String option) {
+        return DropdownMenuItem<String>(value: option, child: Text(option));
+      }).toList(),
       onChanged: onChanged,
-      validator: (value) =>
-          value == null || value.isEmpty ? 'Please select $label' : null,
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        children: [
-          Card(
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    const Text(
-                      'Add Urine Report Record',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.blue,
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    GestureDetector(
-                      onTap: _selectDate,
-                      child: AbsorbPointer(
-                        child: CustomTextField(
-                          controller: _testDateController,
-                          label: 'Test Date',
-                          hint: 'Select test date',
-                          suffixIcon: const Icon(Icons.calendar_today),
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Please select test date';
-                            }
-                            return null;
-                          },
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: _buildDropdownField(
-                            label: 'Color',
-                            value: _selectedColor,
-                            options: _colorOptions,
-                            onChanged: (value) =>
-                                setState(() => _selectedColor = value!),
-                          ),
-                        ),
-                        const SizedBox(width: 16),
-                        Expanded(
-                          child: _buildDropdownField(
-                            label: 'Appearance',
-                            value: _selectedAppearance,
-                            options: _appearanceOptions,
-                            onChanged: (value) =>
-                                setState(() => _selectedAppearance = value!),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 16),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: _buildDropdownField(
-                            label: 'Protein',
-                            value: _selectedProtein,
-                            options: _proteinOptions,
-                            onChanged: (value) =>
-                                setState(() => _selectedProtein = value!),
-                          ),
-                        ),
-                        const SizedBox(width: 16),
-                        Expanded(
-                          child: _buildDropdownField(
-                            label: 'Sugar',
-                            value: _selectedSugar,
-                            options: _sugarOptions,
-                            onChanged: (value) =>
-                                setState(() => _selectedSugar = value!),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 16),
-                    CustomTextField(
-                      controller: _specificGravityController,
-                      label: 'Specific Gravity',
-                      hint: 'e.g., 1.020 (Normal: 1.005-1.030)',
-                      keyboardType: const TextInputType.numberWithOptions(
-                        decimal: true,
-                      ),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) return 'Required';
-                        final val = double.tryParse(value);
-                        if (val == null || val < 1.000 || val > 1.050)
-                          return 'Invalid (1.000-1.050)';
-                        return null;
-                      },
-                    ),
-                    const SizedBox(height: 16),
-                    CustomTextField(
-                      controller: _imageUrlController,
-                      label: 'Report Image URL (Optional)',
-                      hint: 'Enter image URL or file path',
-                    ),
-                    const SizedBox(height: 16),
-                    CustomButton(text: 'Add Record', onPressed: _addRecord),
-                  ],
-                ),
-              ),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final isWide = constraints.maxWidth > 600;
+        final columnCount = isWide ? 2 : 1;
+
+        return SingleChildScrollView(
+          physics: const BouncingScrollPhysics(),
+          child: Padding(
+            padding: EdgeInsets.symmetric(
+              horizontal: constraints.maxWidth * 0.02,
+              vertical: 8.0,
             ),
-          ),
-
-          const SizedBox(height: 16),
-
-          Expanded(
-            child: Consumer<HealthRecordsProvider>(
-              builder: (context, healthProvider, child) {
-                if (healthProvider.urineRecords.isEmpty) {
-                  return const Card(
-                    child: Center(
+            child: Column(
+              children: [
+                Card(
+                  elevation: 2,
+                  child: Padding(
+                    padding: const EdgeInsets.all(12.0),
+                    child: Form(
+                      key: _formKey,
                       child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
-                          Icon(
-                            Icons.water_drop_outlined,
-                            size: 64,
-                            color: Colors.grey,
-                          ),
-                          SizedBox(height: 16),
                           Text(
-                            'No urine report records yet',
-                            style: TextStyle(fontSize: 18, color: Colors.grey),
+                            'Add Urine Report Record',
+                            style: Theme.of(context).textTheme.titleMedium
+                                ?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.amber[700],
+                                ),
                           ),
-                        ],
-                      ),
-                    ),
-                  );
-                }
+                          const SizedBox(height: 12),
 
-                return ListView.builder(
-                  itemCount: healthProvider.urineRecords.length,
-                  itemBuilder: (context, index) {
-                    final record =
-                        healthProvider.urineRecords[healthProvider
-                                .urineRecords
-                                .length -
-                            1 -
-                            index];
-                    final sgAnalysis = HealthAnalysis.analyzeSpecificGravity(
-                      record.specificGravity,
-                    );
+                          InkWell(
+                            onTap: _selectDate,
+                            child: InputDecorator(
+                              decoration: InputDecoration(
+                                labelText: 'Test Date',
+                                suffixIcon: const Icon(
+                                  Icons.calendar_today,
+                                  size: 20,
+                                ),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                contentPadding: const EdgeInsets.symmetric(
+                                  horizontal: 12,
+                                  vertical: 8,
+                                ),
+                              ),
+                              child: Text(
+                                _testDateController.text,
+                                style: const TextStyle(fontSize: 14),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 8),
 
-                    // Determine overall status color based on abnormal findings
-                    Color statusColor = Colors.green;
-                    if (record.protein != 'Negative' ||
-                        record.sugar != 'Negative' ||
-                        sgAnalysis.color == Colors.red) {
-                      statusColor = Colors.red;
-                    } else if (sgAnalysis.color == Colors.orange) {
-                      statusColor = Colors.orange;
-                    }
-
-                    return Card(
-                      margin: const EdgeInsets.only(bottom: 8),
-                      child: ExpansionTile(
-                        leading: CircleAvatar(
-                          backgroundColor: statusColor,
-                          child: const Icon(
-                            Icons.water_drop,
-                            color: Colors.white,
-                          ),
-                        ),
-                        title: Text(
-                          'SG: ${record.specificGravity.toStringAsFixed(3)}',
-                          style: const TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                        subtitle: Text('Date: ${record.testDate}'),
-                        children: [
-                          ListTile(
-                            title: const Text('Color'),
-                            trailing: Text(record.color),
-                          ),
-                          ListTile(
-                            title: const Text('Appearance'),
-                            trailing: Text(record.appearance),
-                          ),
-                          ListTile(
-                            title: const Text('Protein'),
-                            trailing: Text(
-                              record.protein,
-                              style: TextStyle(
-                                color: record.protein == 'Negative'
-                                    ? Colors.green
-                                    : Colors.red,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                          ListTile(
-                            title: const Text('Sugar'),
-                            trailing: Text(
-                              record.sugar,
-                              style: TextStyle(
-                                color: record.sugar == 'Negative'
-                                    ? Colors.green
-                                    : Colors.red,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                          ListTile(
-                            title: const Text('Specific Gravity Status'),
-                            trailing: Text(
-                              sgAnalysis.statusText,
-                              style: TextStyle(
-                                color: sgAnalysis.color,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 16.0,
-                            ),
-                            child: Text(
-                              sgAnalysis.recommendation,
-                              style: TextStyle(
-                                color: Colors.grey.shade600,
-                                fontSize: 13,
-                              ),
-                            ),
-                          ),
-                          ButtonBar(
+                          GridView.count(
+                            crossAxisCount: columnCount,
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
+                            crossAxisSpacing: 8,
+                            mainAxisSpacing: 8,
+                            childAspectRatio: isWide ? 4.0 : 5.5,
                             children: [
-                              TextButton.icon(
-                                icon: const Icon(
-                                  Icons.delete,
-                                  color: Colors.red,
-                                ),
-                                label: const Text(
-                                  'Delete',
-                                  style: TextStyle(color: Colors.red),
-                                ),
-                                onPressed: () async {
-                                  final confirm = await showDialog<bool>(
-                                    context: context,
-                                    builder: (ctx) => AlertDialog(
-                                      title: const Text('Delete Record'),
-                                      content: const Text('Are you sure?'),
-                                      actions: [
-                                        TextButton(
-                                          onPressed: () =>
-                                              Navigator.pop(ctx, false),
-                                          child: const Text('Cancel'),
-                                        ),
-                                        TextButton(
-                                          onPressed: () =>
-                                              Navigator.pop(ctx, true),
-                                          child: const Text(
-                                            'Delete',
-                                            style: TextStyle(color: Colors.red),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  );
-                                  if (confirm == true) {
-                                    await healthProvider.deleteUrineRecord(
-                                      record.id,
-                                    );
-                                  }
+                              _buildDropdownField(
+                                label: 'Color',
+                                value: _selectedColor,
+                                options: _colorOptions,
+                                onChanged: (value) {
+                                  setState(() {
+                                    _selectedColor = value ?? 'Yellow';
+                                  });
+                                },
+                              ),
+                              _buildDropdownField(
+                                label: 'Appearance',
+                                value: _selectedAppearance,
+                                options: _appearanceOptions,
+                                onChanged: (value) {
+                                  setState(() {
+                                    _selectedAppearance = value ?? 'Clear';
+                                  });
+                                },
+                              ),
+                              _buildDropdownField(
+                                label: 'Protein',
+                                value: _selectedProtein,
+                                options: _proteinOptions,
+                                onChanged: (value) {
+                                  setState(() {
+                                    _selectedProtein = value ?? 'Negative';
+                                  });
+                                },
+                              ),
+                              _buildDropdownField(
+                                label: 'Sugar',
+                                value: _selectedSugar,
+                                options: _sugarOptions,
+                                onChanged: (value) {
+                                  setState(() {
+                                    _selectedSugar = value ?? 'Negative';
+                                  });
                                 },
                               ),
                             ],
                           ),
+                          const SizedBox(height: 8),
+
+                          TextFormField(
+                            controller: _specificGravityController,
+                            decoration: InputDecoration(
+                              labelText: 'Specific Gravity (Optional)',
+                              hintText: '1.020',
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              contentPadding: const EdgeInsets.symmetric(
+                                horizontal: 12,
+                                vertical: 8,
+                              ),
+                            ),
+                            keyboardType: const TextInputType.numberWithOptions(
+                              decimal: true,
+                            ),
+                            style: const TextStyle(fontSize: 14),
+                          ),
+                          const SizedBox(height: 8),
+
+                          TextFormField(
+                            controller: _imageUrlController,
+                            decoration: InputDecoration(
+                              labelText: 'Report Image (Optional)',
+                              hintText: 'URL or file path',
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              contentPadding: const EdgeInsets.symmetric(
+                                horizontal: 12,
+                                vertical: 8,
+                              ),
+                            ),
+                            style: const TextStyle(fontSize: 14),
+                          ),
+                          const SizedBox(height: 12),
+
+                          SizedBox(
+                            height: 56,
+                            child: ElevatedButton(
+                              onPressed: _addRecord,
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.amber[700],
+                                foregroundColor: Colors.white,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                              ),
+                              child: _isSubmitting
+                                  ? const SizedBox(
+                                      height: 20,
+                                      width: 20,
+                                      child: CircularProgressIndicator(
+                                        color: Colors.white,
+                                        strokeWidth: 2,
+                                      ),
+                                    )
+                                  : const Text(
+                                      'Add Record',
+                                      style: TextStyle(fontSize: 16),
+                                    ),
+                            ),
+                          ),
                         ],
                       ),
+                    ),
+                  ),
+                ),
+
+                const SizedBox(height: 8),
+
+                Consumer<HealthRecordsProvider>(
+                  builder: (context, healthProvider, child) {
+                    if (healthProvider.urineRecords.isEmpty) {
+                      return Card(
+                        child: Container(
+                          padding: const EdgeInsets.all(20),
+                          child: const Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(Icons.opacity, size: 48, color: Colors.grey),
+                              SizedBox(height: 8),
+                              Text(
+                                'No records yet',
+                                style: TextStyle(color: Colors.grey),
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    }
+
+                    return ListView.builder(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemCount: healthProvider.urineRecords.length,
+                      itemBuilder: (context, index) {
+                        final record =
+                            healthProvider.urineRecords[healthProvider
+                                    .urineRecords
+                                    .length -
+                                1 -
+                                index];
+                        return _buildCompactRecordCard(record);
+                      },
                     );
                   },
-                );
-              },
+                ),
+              ],
             ),
           ),
-        ],
+        );
+      },
+    );
+  }
+
+  Widget _buildCompactRecordCard(UrineReport record) {
+    return Card(
+      margin: const EdgeInsets.only(bottom: 4),
+      child: ListTile(
+        leading: CircleAvatar(
+          radius: 16,
+          backgroundColor: _getUrineColor(record.color),
+          child: const Icon(Icons.opacity, color: Colors.white, size: 16),
+        ),
+        title: Row(
+          children: [
+            Expanded(
+              child: Text(
+                'Color: ${record.color}',
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 14,
+                ),
+              ),
+            ),
+            if (record.protein != 'Negative' || record.sugar != 'Negative')
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: Colors.orange.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                child: Text(
+                  'Abnormal',
+                  style: TextStyle(
+                    color: Colors.orange,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 11,
+                  ),
+                ),
+              ),
+          ],
+        ),
+        subtitle: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              DateFormat(
+                'MMM dd, yyyy',
+              ).format(DateTime.parse(record.testDate)),
+              style: const TextStyle(fontSize: 12),
+            ),
+            const SizedBox(height: 2),
+            Text(
+              'Protein: ${record.protein}, Sugar: ${record.sugar}',
+              style: const TextStyle(fontSize: 11, color: Colors.grey),
+            ),
+          ],
+        ),
       ),
     );
+  }
+
+  Color _getUrineColor(String color) {
+    switch (color.toLowerCase()) {
+      case 'pale yellow':
+      case 'yellow':
+        return Colors.yellow[700]!;
+      case 'dark yellow':
+      case 'amber':
+        return Colors.amber[800]!;
+      case 'red':
+        return Colors.red;
+      case 'brown':
+        return Colors.brown;
+      case 'clear':
+        return Colors.blue[200]!;
+      default:
+        return Colors.amber[700]!;
+    }
   }
 }

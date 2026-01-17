@@ -4,24 +4,22 @@ import 'package:intl/intl.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/health_records_provider.dart';
 import '../../models/full_blood_count.dart';
-import '../../widgets/custom_text_field.dart';
-import '../../widgets/custom_button.dart';
-import '../../utils/health_analysis.dart';
 
-class FBCRecordsScreen extends StatefulWidget {
-  const FBCRecordsScreen({super.key});
+class FbcRecordsScreen extends StatefulWidget {
+  const FbcRecordsScreen({super.key});
 
   @override
-  State<FBCRecordsScreen> createState() => _FBCRecordsScreenState();
+  State<FbcRecordsScreen> createState() => _FbcRecordsScreenState();
 }
 
-class _FBCRecordsScreenState extends State<FBCRecordsScreen> {
+class _FbcRecordsScreenState extends State<FbcRecordsScreen> {
   final _formKey = GlobalKey<FormState>();
   final _testDateController = TextEditingController();
   final _haemoglobinController = TextEditingController();
   final _wbcController = TextEditingController();
   final _plateletController = TextEditingController();
   final _imageUrlController = TextEditingController();
+  bool _isSubmitting = false;
 
   @override
   void initState() {
@@ -53,247 +51,382 @@ class _FBCRecordsScreenState extends State<FBCRecordsScreen> {
   }
 
   void _addRecord() async {
-    if (_formKey.currentState!.validate()) {
-      final authProvider = context.read<AuthProvider>();
-      final healthProvider = context.read<HealthRecordsProvider>();
+    if (_formKey.currentState!.validate() && !_isSubmitting) {
+      setState(() {
+        _isSubmitting = true;
+      });
 
-      if (authProvider.currentUser == null) return;
+      try {
+        final authProvider = context.read<AuthProvider>();
+        final healthProvider = context.read<HealthRecordsProvider>();
 
-      final record = FullBloodCount(
-        id: 0,
-        testDate: _testDateController.text,
-        haemoglobin: double.parse(_haemoglobinController.text),
-        totalLeucocyteCount: double.parse(_wbcController.text),
-        plateletCount: double.parse(_plateletController.text),
-        imageUrl: _imageUrlController.text.isEmpty ? null : _imageUrlController.text,
-      );
+        if (authProvider.currentUser == null) return;
 
-      final success = await healthProvider.addFBCRecord(
-          record, authProvider.currentUser!.id);
+        final record = FullBloodCount(
+          id: 0,
+          testDate: _testDateController.text,
+          haemoglobin: double.parse(_haemoglobinController.text),
+          totalLeucocyteCount: double.parse(_wbcController.text),
+          plateletCount: double.parse(_plateletController.text),
+          imageUrl: _imageUrlController.text.isEmpty
+              ? null
+              : _imageUrlController.text,
+        );
 
-      if (mounted) {
-        if (success) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('FBC record added successfully!'),
-              backgroundColor: Colors.green,
-            ),
-          );
+        final success = await healthProvider.addFBCRecord(
+          record,
+          authProvider.currentUser!.id,
+        );
 
-          _haemoglobinController.clear();
-          _wbcController.clear();
-          _plateletController.clear();
-          _imageUrlController.clear();
-          _testDateController.text = DateFormat('yyyy-MM-dd').format(DateTime.now());
-        } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(healthProvider.errorMessage ?? 'Error adding record'),
-              backgroundColor: Colors.red,
-            ),
-          );
+        if (mounted) {
+          if (success) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('FBC record added successfully!'),
+                backgroundColor: Colors.green,
+              ),
+            );
+
+            _haemoglobinController.clear();
+            _wbcController.clear();
+            _plateletController.clear();
+            _imageUrlController.clear();
+            _testDateController.text = DateFormat(
+              'yyyy-MM-dd',
+            ).format(DateTime.now());
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(
+                  healthProvider.errorMessage ?? 'Error adding record',
+                ),
+                backgroundColor: Colors.red,
+              ),
+            );
+          }
+        }
+      } finally {
+        if (mounted) {
+          setState(() {
+            _isSubmitting = false;
+          });
         }
       }
     }
   }
 
+  Widget _buildCompactField({
+    required TextEditingController controller,
+    required String label,
+    required String hint,
+    String? Function(String?)? validator,
+  }) {
+    return TextFormField(
+      controller: controller,
+      decoration: InputDecoration(
+        labelText: label,
+        hintText: hint,
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      ),
+      keyboardType: const TextInputType.numberWithOptions(decimal: true),
+      style: const TextStyle(fontSize: 14),
+      validator: validator,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    final user = context.read<AuthProvider>().currentUser;
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final isWide = constraints.maxWidth > 600;
+        final columnCount = isWide ? 2 : 1;
 
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        children: [
-          Card(
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    const Text(
-                      'Add Full Blood Count Record',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.purple,
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    GestureDetector(
-                      onTap: _selectDate,
-                      child: AbsorbPointer(
-                        child: CustomTextField(
-                          controller: _testDateController,
-                          label: 'Test Date',
-                          hint: 'Select test date',
-                          suffixIcon: const Icon(Icons.calendar_today),
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Please select test date';
-                            }
-                            return null;
-                          },
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    CustomTextField(
-                      controller: _haemoglobinController,
-                      label: 'Haemoglobin (g/dL)',
-                      hint: 'e.g., 14.5',
-                      keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) return 'Required';
-                        final val = double.tryParse(value);
-                        if (val == null || val < 1 || val > 25) return 'Invalid (1-25)';
-                        return null;
-                      },
-                    ),
-                    const SizedBox(height: 16),
-                    CustomTextField(
-                      controller: _wbcController,
-                      label: 'WBC Count (cells/mcL)',
-                      hint: 'e.g., 7500',
-                      keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) return 'Required';
-                        final val = double.tryParse(value);
-                        if (val == null || val < 1000 || val > 50000) return 'Invalid (1000-50000)';
-                        return null;
-                      },
-                    ),
-                    const SizedBox(height: 16),
-                    CustomTextField(
-                      controller: _plateletController,
-                      label: 'Platelet Count (cells/mcL)',
-                      hint: 'e.g., 250000',
-                      keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) return 'Required';
-                        final val = double.tryParse(value);
-                        if (val == null || val < 10000 || val > 1000000) return 'Invalid';
-                        return null;
-                      },
-                    ),
-                    const SizedBox(height: 16),
-                    CustomTextField(
-                      controller: _imageUrlController,
-                      label: 'Report Image URL (Optional)',
-                      hint: 'Enter image URL or file path',
-                    ),
-                    const SizedBox(height: 16),
-                    CustomButton(
-                      text: 'Add Record',
-                      onPressed: _addRecord,
-                    ),
-                  ],
-                ),
-              ),
+        return SingleChildScrollView(
+          physics: const BouncingScrollPhysics(),
+          child: Padding(
+            padding: EdgeInsets.symmetric(
+              horizontal: constraints.maxWidth * 0.02,
+              vertical: 8.0,
             ),
-          ),
-
-          const SizedBox(height: 16),
-
-          Expanded(
-            child: Consumer<HealthRecordsProvider>(
-              builder: (context, healthProvider, child) {
-                if (healthProvider.fbcRecords.isEmpty) {
-                  return const Card(
-                    child: Center(
+            child: Column(
+              children: [
+                Card(
+                  elevation: 2,
+                  child: Padding(
+                    padding: const EdgeInsets.all(12.0),
+                    child: Form(
+                      key: _formKey,
                       child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
-                          Icon(Icons.science_outlined, size: 64, color: Colors.grey),
-                          SizedBox(height: 16),
                           Text(
-                            'No FBC records yet',
-                            style: TextStyle(fontSize: 18, color: Colors.grey),
+                            'Add Full Blood Count Record',
+                            style: Theme.of(context).textTheme.titleMedium
+                                ?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.purple,
+                                ),
                           ),
-                        ],
-                      ),
-                    ),
-                  );
-                }
+                          const SizedBox(height: 12),
 
-                return ListView.builder(
-                  itemCount: healthProvider.fbcRecords.length,
-                  itemBuilder: (context, index) {
-                    final record = healthProvider
-                        .fbcRecords[healthProvider.fbcRecords.length - 1 - index];
-                    final hbAnalysis = HealthAnalysis.analyzeHaemoglobin(
-                        record.haemoglobin, user?.gender ?? 'male');
-
-                    return Card(
-                      margin: const EdgeInsets.only(bottom: 8),
-                      child: ExpansionTile(
-                        leading: CircleAvatar(
-                          backgroundColor: hbAnalysis.color,
-                          child: const Icon(Icons.science, color: Colors.white),
-                        ),
-                        title: Text(
-                          'Hb: ${record.haemoglobin.toStringAsFixed(1)} g/dL',
-                          style: const TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                        subtitle: Text('Date: ${record.testDate}'),
-                        children: [
-                          ListTile(
-                            title: const Text('WBC Count'),
-                            trailing: Text('${record.totalLeucocyteCount.toStringAsFixed(0)} /mcL'),
-                          ),
-                          ListTile(
-                            title: const Text('Platelet Count'),
-                            trailing: Text('${record.plateletCount.toStringAsFixed(0)} /mcL'),
-                          ),
-                          ListTile(
-                            title: const Text('Status'),
-                            trailing: Text(
-                              hbAnalysis.statusText,
-                              style: TextStyle(color: hbAnalysis.color, fontWeight: FontWeight.bold),
+                          InkWell(
+                            onTap: _selectDate,
+                            child: InputDecorator(
+                              decoration: InputDecoration(
+                                labelText: 'Test Date',
+                                suffixIcon: const Icon(
+                                  Icons.calendar_today,
+                                  size: 20,
+                                ),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                contentPadding: const EdgeInsets.symmetric(
+                                  horizontal: 12,
+                                  vertical: 8,
+                                ),
+                              ),
+                              child: Text(
+                                _testDateController.text,
+                                style: const TextStyle(fontSize: 14),
+                              ),
                             ),
                           ),
-                          ButtonBar(
+                          const SizedBox(height: 8),
+
+                          GridView.count(
+                            crossAxisCount: columnCount,
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
+                            crossAxisSpacing: 8,
+                            mainAxisSpacing: 8,
+                            childAspectRatio: isWide ? 4.0 : 5.5,
                             children: [
-                              TextButton.icon(
-                                icon: const Icon(Icons.delete, color: Colors.red),
-                                label: const Text('Delete', style: TextStyle(color: Colors.red)),
-                                onPressed: () async {
-                                  final confirm = await showDialog<bool>(
-                                    context: context,
-                                    builder: (ctx) => AlertDialog(
-                                      title: const Text('Delete Record'),
-                                      content: const Text('Are you sure?'),
-                                      actions: [
-                                        TextButton(
-                                          onPressed: () => Navigator.pop(ctx, false),
-                                          child: const Text('Cancel'),
-                                        ),
-                                        TextButton(
-                                          onPressed: () => Navigator.pop(ctx, true),
-                                          child: const Text('Delete', style: TextStyle(color: Colors.red)),
-                                        ),
-                                      ],
-                                    ),
-                                  );
-                                  if (confirm == true) {
-                                    await healthProvider.deleteFBCRecord(record.id);
-                                  }
+                              _buildCompactField(
+                                controller: _haemoglobinController,
+                                label: 'Haemoglobin (g/dL)',
+                                hint: '14.5',
+                                validator: (value) {
+                                  if (value == null || value.isEmpty)
+                                    return 'Required';
+                                  final val = double.tryParse(value);
+                                  if (val == null || val < 5 || val > 20)
+                                    return 'Invalid range';
+                                  return null;
+                                },
+                              ),
+                              _buildCompactField(
+                                controller: _wbcController,
+                                label: 'WBC (cells/mcL)',
+                                hint: '7500',
+                                validator: (value) {
+                                  if (value == null || value.isEmpty)
+                                    return 'Required';
+                                  final val = double.tryParse(value);
+                                  if (val == null || val < 3000 || val > 15000)
+                                    return 'Invalid range';
+                                  return null;
+                                },
+                              ),
+                              _buildCompactField(
+                                controller: _plateletController,
+                                label: 'Platelet (cells/mcL)',
+                                hint: '250000',
+                                validator: (value) {
+                                  if (value == null || value.isEmpty)
+                                    return 'Required';
+                                  final val = double.tryParse(value);
+                                  if (val == null ||
+                                      val < 100000 ||
+                                      val > 500000)
+                                    return 'Invalid range';
+                                  return null;
                                 },
                               ),
                             ],
                           ),
+                          const SizedBox(height: 8),
+
+                          TextFormField(
+                            controller: _imageUrlController,
+                            decoration: InputDecoration(
+                              labelText: 'Report Image (Optional)',
+                              hintText: 'URL or file path',
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              contentPadding: const EdgeInsets.symmetric(
+                                horizontal: 12,
+                                vertical: 8,
+                              ),
+                            ),
+                            style: const TextStyle(fontSize: 14),
+                          ),
+                          const SizedBox(height: 12),
+
+                          SizedBox(
+                            height: 56,
+                            child: ElevatedButton(
+                              onPressed: _addRecord,
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.purple,
+                                foregroundColor: Colors.white,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                              ),
+                              child: _isSubmitting
+                                  ? const SizedBox(
+                                      height: 20,
+                                      width: 20,
+                                      child: CircularProgressIndicator(
+                                        color: Colors.white,
+                                        strokeWidth: 2,
+                                      ),
+                                    )
+                                  : const Text(
+                                      'Add Record',
+                                      style: TextStyle(fontSize: 16),
+                                    ),
+                            ),
+                          ),
                         ],
                       ),
+                    ),
+                  ),
+                ),
+
+                const SizedBox(height: 8),
+
+                Consumer<HealthRecordsProvider>(
+                  builder: (context, healthProvider, child) {
+                    if (healthProvider.fbcRecords.isEmpty) {
+                      return Card(
+                        child: Container(
+                          padding: const EdgeInsets.all(20),
+                          child: const Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                Icons.bloodtype,
+                                size: 48,
+                                color: Colors.grey,
+                              ),
+                              SizedBox(height: 8),
+                              Text(
+                                'No records yet',
+                                style: TextStyle(color: Colors.grey),
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    }
+
+                    return ListView.builder(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemCount: healthProvider.fbcRecords.length,
+                      itemBuilder: (context, index) {
+                        final record =
+                            healthProvider.fbcRecords[healthProvider
+                                    .fbcRecords
+                                    .length -
+                                1 -
+                                index];
+                        return _buildCompactRecordCard(record);
+                      },
                     );
                   },
-                );
-              },
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildCompactRecordCard(FullBloodCount record) {
+    return Card(
+      margin: const EdgeInsets.only(bottom: 4),
+      child: ExpansionTile(
+        leading: CircleAvatar(
+          radius: 16,
+          backgroundColor: _getHemoglobinColor(record.haemoglobin),
+          child: const Icon(Icons.bloodtype, color: Colors.white, size: 16),
+        ),
+        title: Row(
+          children: [
+            Expanded(
+              child: Text(
+                'Hb: ${record.haemoglobin.toStringAsFixed(1)} g/dL',
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 14,
+                ),
+              ),
+            ),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              decoration: BoxDecoration(
+                color: _getHemoglobinColor(record.haemoglobin).withOpacity(0.1),
+                borderRadius: BorderRadius.circular(4),
+              ),
+              child: Text(
+                _getHemoglobinStatus(record.haemoglobin),
+                style: TextStyle(
+                  color: _getHemoglobinColor(record.haemoglobin),
+                  fontWeight: FontWeight.bold,
+                  fontSize: 11,
+                ),
+              ),
+            ),
+          ],
+        ),
+        subtitle: Text(
+          DateFormat('MMM dd, yyyy').format(DateTime.parse(record.testDate)),
+          style: const TextStyle(fontSize: 12),
+        ),
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              children: [
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        'WBC: ${record.totalLeucocyteCount.toStringAsFixed(0)} cells/mcL',
+                        style: const TextStyle(fontSize: 13),
+                      ),
+                    ),
+                    Expanded(
+                      child: Text(
+                        'Platelets: ${record.plateletCount.toStringAsFixed(0)} cells/mcL',
+                        style: const TextStyle(fontSize: 13),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
             ),
           ),
         ],
       ),
     );
+  }
+
+  Color _getHemoglobinColor(double hemoglobin) {
+    if (hemoglobin >= 12.0) return Colors.green;
+    if (hemoglobin >= 10.0) return Colors.orange;
+    return Colors.red;
+  }
+
+  String _getHemoglobinStatus(double hemoglobin) {
+    if (hemoglobin >= 12.0) return 'Normal';
+    if (hemoglobin >= 10.0) return 'Low';
+    return 'Very Low';
   }
 }

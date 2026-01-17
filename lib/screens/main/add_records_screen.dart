@@ -54,10 +54,10 @@ class _AddRecordsScreenState extends State<AddRecordsScreen>
       ),
       body: TabBarView(
         controller: _tabController,
-        children: const [
-          FBSRecordsScreen(),
+        children: [
+          FbsRecordsScreen(),
           BloodPressureRecordsScreen(),
-          FBCRecordsScreen(),
+          FbcRecordsScreen(),
           LipidProfileRecordsScreen(),
           LiverProfileRecordsScreen(),
           UrineReportRecordsScreen(),
