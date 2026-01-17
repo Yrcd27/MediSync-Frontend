@@ -293,4 +293,82 @@ class HealthAnalysis {
       return HealthResult.abnormal('High SGOT. Medical attention needed.');
     }
   }
+
+  static HealthResult analyzeBilirubin(double value) {
+    // Normal: 0.1-1.2 mg/dL
+    if (value <= 1.2) {
+      return HealthResult.normal('Bilirubin level is normal.');
+    } else if (value <= 2.5) {
+      return HealthResult.high(
+        'Mildly elevated bilirubin. Monitor for jaundice symptoms.',
+      );
+    } else {
+      return HealthResult.abnormal(
+        'High bilirubin. May indicate liver issues. Consult a doctor.',
+      );
+    }
+  }
+
+  static HealthResult analyzeAlbumin(double value) {
+    // Normal: 3.5-5.0 g/dL
+    if (value < 3.5) {
+      return HealthResult.low(
+        'Low albumin may indicate liver or kidney issues. Consult a doctor.',
+      );
+    } else if (value <= 5.0) {
+      return HealthResult.normal(
+        'Albumin level is normal. Liver protein synthesis is healthy.',
+      );
+    } else {
+      return HealthResult.high(
+        'Elevated albumin. Often due to dehydration. Stay hydrated.',
+      );
+    }
+  }
+
+  // ============= Urine Report Analysis =============
+  static HealthResult analyzeUrineProtein(String protein) {
+    final lower = protein.toLowerCase();
+    if (lower == 'negative' || lower == 'nil' || lower == '-') {
+      return HealthResult.normal(
+        'No protein in urine. Kidney function appears normal.',
+      );
+    } else if (lower == 'trace') {
+      return HealthResult.normal(
+        'Trace protein detected. Usually not significant. Monitor.',
+      );
+    } else {
+      return HealthResult.abnormal(
+        'Protein in urine detected. May indicate kidney issues. Consult a doctor.',
+      );
+    }
+  }
+
+  static HealthResult analyzeUrineSugar(String sugar) {
+    final lower = sugar.toLowerCase();
+    if (lower == 'negative' || lower == 'nil' || lower == '-') {
+      return HealthResult.normal(
+        'No sugar in urine. Glucose metabolism appears normal.',
+      );
+    } else {
+      return HealthResult.abnormal(
+        'Sugar detected in urine. May indicate diabetes. Check blood sugar.',
+      );
+    }
+  }
+
+  static HealthResult analyzeSpecificGravity(double sg) {
+    // Normal: 1.005-1.030
+    if (sg < 1.005) {
+      return HealthResult.low(
+        'Low specific gravity. May indicate overhydration or kidney issues.',
+      );
+    } else if (sg <= 1.030) {
+      return HealthResult.normal('Urine concentration is within normal range.');
+    } else {
+      return HealthResult.high(
+        'High specific gravity. May indicate dehydration. Drink more water.',
+      );
+    }
+  }
 }
