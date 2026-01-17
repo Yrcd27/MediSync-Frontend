@@ -10,22 +10,35 @@ class AuthService {
   /// Login with email and password
   Future<User> login(String email, String password) async {
     try {
+      print('🔑 Attempting login for: $email');
+      print('📡 Login endpoint: ${AppConfig.login}');
+      print('📡 Base URL: ${AppConfig.baseUrl}');
+      
       final response = await _apiService.post(AppConfig.login, {
         'email': email,
         'password': password,
       });
 
+      print('📥 Response status: ${response.statusCode}');
+      print('📥 Response body: ${response.body}');
+
       final userData = _apiService.handleResponse(response);
+      print('✅ Login response parsed successfully');
+      
       final user = User.fromJson(userData);
+      print('✅ User object created: ${user.name}');
 
       // Store user session
       await _apiService.saveUserSession(user.id);
+      print('✅ Session saved for user ID: ${user.id}');
 
       // Also store user data locally for session restoration
       await _saveUserData(user);
+      print('✅ User data saved locally');
 
       return user;
     } catch (e) {
+      print('❌ Login error: $e');
       final errorMsg = e.toString().replaceAll('Exception: ', '');
       throw Exception(errorMsg);
     }
