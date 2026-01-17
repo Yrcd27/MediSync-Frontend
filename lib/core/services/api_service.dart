@@ -42,8 +42,8 @@ class ApiService {
 
   // Build full URL
   String _buildUrl(String endpoint) {
-    // Use fullBaseUrl which includes /api/v1 path
-    return '${AppConfig.fullBaseUrl}$endpoint';
+    // Use baseUrl directly - backend doesn't use /api/v1 prefix
+    return '${AppConfig.baseUrl}$endpoint';
   }
 
   // Generic GET request
