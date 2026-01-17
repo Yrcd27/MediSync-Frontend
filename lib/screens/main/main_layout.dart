@@ -5,7 +5,7 @@ import '../../providers/health_records_provider.dart';
 import '../../widgets/common/custom_bottom_nav_bar.dart';
 import '../../core/constants/app_colors.dart';
 import 'dashboard_screen.dart';
-import 'add_records_screen.dart';
+import 'records_hub_screen.dart';
 import 'analytics_screen.dart';
 import 'profile_screen.dart';
 
@@ -21,7 +21,7 @@ class _MainLayoutState extends State<MainLayout> {
 
   final List<Widget> _screens = [
     const DashboardScreen(),
-    const AddRecordsScreen(),
+    const RecordsHubScreen(),
     const AnalyticsScreen(),
     const ProfileScreen(),
   ];
@@ -62,9 +62,9 @@ class _MainLayoutState extends State<MainLayout> {
             label: 'Dashboard',
           ),
           BottomNavItem(
-            icon: Icons.add_circle_outline,
-            activeIcon: Icons.add_circle,
-            label: 'Add Records',
+            icon: Icons.folder_outlined,
+            activeIcon: Icons.folder,
+            label: 'Records',
           ),
           BottomNavItem(
             icon: Icons.analytics_outlined,
