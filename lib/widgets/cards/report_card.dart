@@ -25,9 +25,7 @@ class ReportCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       elevation: AppSpacing.elevationSm,
-      shape: RoundedRectangleBorder(
-        borderRadius: AppSpacing.borderRadiusMd,
-      ),
+      shape: RoundedRectangleBorder(borderRadius: AppSpacing.borderRadiusMd),
       child: InkWell(
         onTap: onTap,
         borderRadius: AppSpacing.borderRadiusMd,

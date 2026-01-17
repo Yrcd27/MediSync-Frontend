@@ -28,9 +28,7 @@ class InfoCard extends StatelessWidget {
     return Card(
       elevation: AppSpacing.elevationSm,
       color: backgroundColor ?? AppColors.surface,
-      shape: RoundedRectangleBorder(
-        borderRadius: AppSpacing.borderRadiusMd,
-      ),
+      shape: RoundedRectangleBorder(borderRadius: AppSpacing.borderRadiusMd),
       child: InkWell(
         onTap: onTap,
         borderRadius: AppSpacing.borderRadiusMd,

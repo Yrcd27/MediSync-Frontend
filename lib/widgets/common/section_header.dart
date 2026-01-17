@@ -33,10 +33,7 @@ class SectionHeader extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  title,
-                  style: AppTypography.title2,
-                ),
+                Text(title, style: AppTypography.title2),
                 if (subtitle != null) ...[
                   const SizedBox(height: AppSpacing.xs),
                   Text(
@@ -67,7 +64,8 @@ class SectionHeader extends StatelessWidget {
                           fontWeight: FontWeight.w600,
                         ),
                       ),
-                      if (actionIcon != null) const SizedBox(width: AppSpacing.xs),
+                      if (actionIcon != null)
+                        const SizedBox(width: AppSpacing.xs),
                     ],
                     if (actionIcon != null)
                       Icon(

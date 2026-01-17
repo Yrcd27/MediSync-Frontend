@@ -47,9 +47,7 @@ class CustomSnackBar {
         ),
         backgroundColor: color,
         behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(
-          borderRadius: AppSpacing.borderRadiusSm,
-        ),
+        shape: RoundedRectangleBorder(borderRadius: AppSpacing.borderRadiusSm),
         action: onAction != null && actionLabel != null
             ? SnackBarAction(
                 label: actionLabel,

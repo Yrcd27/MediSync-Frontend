@@ -8,12 +8,7 @@ class LoadingIndicator extends StatelessWidget {
   final Color? color;
   final double? size;
 
-  const LoadingIndicator({
-    super.key,
-    this.message,
-    this.color,
-    this.size,
-  });
+  const LoadingIndicator({super.key, this.message, this.color, this.size});
 
   @override
   Widget build(BuildContext context) {
@@ -50,10 +45,7 @@ class LoadingIndicator extends StatelessWidget {
 class FullScreenLoader extends StatelessWidget {
   final String? message;
 
-  const FullScreenLoader({
-    super.key,
-    this.message,
-  });
+  const FullScreenLoader({super.key, this.message});
 
   @override
   Widget build(BuildContext context) {

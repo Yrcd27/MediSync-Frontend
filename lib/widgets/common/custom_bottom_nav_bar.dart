@@ -82,7 +82,9 @@ class _NavBarItem extends StatelessWidget {
               Text(
                 item.label,
                 style: AppTypography.caption.copyWith(
-                  color: isSelected ? AppColors.primary : AppColors.textTertiary,
+                  color: isSelected
+                      ? AppColors.primary
+                      : AppColors.textTertiary,
                   fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
                 ),
                 maxLines: 1,

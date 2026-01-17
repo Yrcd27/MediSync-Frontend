@@ -51,10 +51,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
           if (user == null) {
             return Center(
-              child: Text(
-                'No user data available',
-                style: AppTypography.body1,
-              ),
+              child: Text('No user data available', style: AppTypography.body1),
             );
           }
 
@@ -133,7 +130,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       HealthMetricCard(
                         title: 'Blood Pressure',
                         value: healthProvider.bpRecords.isNotEmpty
-                            ? healthProvider.bpRecords.last.bpLevel.split('/')[0]
+                            ? healthProvider.bpRecords.last.bpLevel.split(
+                                '/',
+                              )[0]
                             : '--',
                         unit: healthProvider.bpRecords.isNotEmpty ? 'mmHg' : '',
                         icon: Icons.favorite,
@@ -149,7 +148,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       HealthMetricCard(
                         title: 'Blood Sugar',
                         value: healthProvider.fbsRecords.isNotEmpty
-                            ? healthProvider.fbsRecords.last.fbsLevel.toStringAsFixed(0)
+                            ? healthProvider.fbsRecords.last.fbsLevel
+                                  .toStringAsFixed(0)
                             : '--',
                         unit: 'mg/dL',
                         icon: Icons.bloodtype,
@@ -165,7 +165,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       HealthMetricCard(
                         title: 'Haemoglobin',
                         value: healthProvider.fbcRecords.isNotEmpty
-                            ? healthProvider.fbcRecords.last.haemoglobin.toStringAsFixed(1)
+                            ? healthProvider.fbcRecords.last.haemoglobin
+                                  .toStringAsFixed(1)
                             : '--',
                         unit: 'g/dL',
                         icon: Icons.science,
@@ -182,13 +183,17 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       HealthMetricCard(
                         title: 'Cholesterol',
                         value: healthProvider.lipidRecords.isNotEmpty
-                            ? healthProvider.lipidRecords.last.totalCholesterol.toStringAsFixed(0)
+                            ? healthProvider.lipidRecords.last.totalCholesterol
+                                  .toStringAsFixed(0)
                             : '--',
                         unit: 'mg/dL',
                         icon: Icons.monitor_heart,
                         color: healthProvider.lipidRecords.isNotEmpty
                             ? HealthAnalysis.analyzeTotalCholesterol(
-                                healthProvider.lipidRecords.last.totalCholesterol,
+                                healthProvider
+                                    .lipidRecords
+                                    .last
+                                    .totalCholesterol,
                               ).color
                             : AppColors.lipidProfile,
                         subtitle: healthProvider.lipidRecords.isNotEmpty

@@ -61,10 +61,7 @@ class PrimaryButton extends StatelessWidget {
                     Icon(icon, size: AppSpacing.iconSm),
                     const SizedBox(width: AppSpacing.sm),
                   ],
-                  Text(
-                    text,
-                    style: AppTypography.buttonMedium,
-                  ),
+                  Text(text, style: AppTypography.buttonMedium),
                 ],
               ),
       ),
