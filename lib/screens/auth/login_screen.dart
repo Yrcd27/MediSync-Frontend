@@ -76,48 +76,26 @@ class _LoginScreenState extends State<LoginScreen> {
     return Scaffold(
       backgroundColor: AppColors.background,
       body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(AppSpacing.xl),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                const SizedBox(height: AppSpacing.xxxl),
-                // Logo
-                Center(
-                  child: Column(
-                    children: [
-                      Image.asset(
-                        'assets/images/heart-rate.png',
-                        width: 80,
-                        height: 80,
-                        color: AppColors.primary,
-                      ),
-                      const SizedBox(height: AppSpacing.md),
-                      Text(
-                        'MediSync',
-                        style: AppTypography.headline1.copyWith(
-                          color: AppColors.primary,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
+        child: Center(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(AppSpacing.xl),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  // Welcome text
+                  Text(
+                    'Welcome Back',
+                    style: AppTypography.headline2,
+                    textAlign: TextAlign.center,
                   ),
-                ),
-                const SizedBox(height: AppSpacing.xxxl),
-                // Welcome text
-                Text(
-                  'Welcome Back',
-                  style: AppTypography.headline2,
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: AppSpacing.sm),
-                Text(
-                  'Sign in to access your health records',
-                  style: AppTypography.body1.copyWith(
-                    color: AppColors.textSecondary,
-                  ),
+                  const SizedBox(height: AppSpacing.sm),
+                  Text(
+                    'Sign in to access your health records',
+                    style: AppTypography.body1.copyWith(
+                      color: AppColors.textSecondary,
+                    ),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: AppSpacing.xxxl),
