@@ -155,7 +155,10 @@ class _LoginScreenState extends State<LoginScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Text("Don't have an account? ", style: AppTypography.body2),
+                      Text(
+                        "Don't have an account? ",
+                        style: AppTypography.body2,
+                      ),
                       TextButton(
                         onPressed: _navigateToSignup,
                         child: Text(

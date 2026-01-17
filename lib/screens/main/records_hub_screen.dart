@@ -13,6 +13,7 @@ import '../records/view/view_blood_count_screen.dart';
 import '../records/view/view_lipid_profile_screen.dart';
 import '../records/view/view_liver_profile_screen.dart';
 import '../records/view/view_urine_report_screen.dart';
+import '../records/all_records_screen.dart';
 import '../../widgets/modals/record_type_selector.dart';
 
 class RecordsHubScreen extends StatelessWidget {
@@ -203,7 +204,12 @@ class RecordsHubScreen extends StatelessWidget {
                       ),
                       TextButton(
                         onPressed: () {
-                          // Could navigate to a "all records" view
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => const AllRecordsScreen(),
+                            ),
+                          );
                         },
                         child: Text(
                           'View All',
