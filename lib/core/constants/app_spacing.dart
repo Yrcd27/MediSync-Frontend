@@ -20,20 +20,41 @@ class AppSpacing {
   static const EdgeInsets paddingXl = EdgeInsets.all(xl);
 
   // Horizontal padding
-  static const EdgeInsets paddingHorizontalSm = EdgeInsets.symmetric(horizontal: sm);
-  static const EdgeInsets paddingHorizontalMd = EdgeInsets.symmetric(horizontal: md);
-  static const EdgeInsets paddingHorizontalLg = EdgeInsets.symmetric(horizontal: lg);
-  static const EdgeInsets paddingHorizontalXl = EdgeInsets.symmetric(horizontal: xl);
+  static const EdgeInsets paddingHorizontalSm = EdgeInsets.symmetric(
+    horizontal: sm,
+  );
+  static const EdgeInsets paddingHorizontalMd = EdgeInsets.symmetric(
+    horizontal: md,
+  );
+  static const EdgeInsets paddingHorizontalLg = EdgeInsets.symmetric(
+    horizontal: lg,
+  );
+  static const EdgeInsets paddingHorizontalXl = EdgeInsets.symmetric(
+    horizontal: xl,
+  );
 
   // Vertical padding
-  static const EdgeInsets paddingVerticalSm = EdgeInsets.symmetric(vertical: sm);
-  static const EdgeInsets paddingVerticalMd = EdgeInsets.symmetric(vertical: md);
-  static const EdgeInsets paddingVerticalLg = EdgeInsets.symmetric(vertical: lg);
-  static const EdgeInsets paddingVerticalXl = EdgeInsets.symmetric(vertical: xl);
+  static const EdgeInsets paddingVerticalSm = EdgeInsets.symmetric(
+    vertical: sm,
+  );
+  static const EdgeInsets paddingVerticalMd = EdgeInsets.symmetric(
+    vertical: md,
+  );
+  static const EdgeInsets paddingVerticalLg = EdgeInsets.symmetric(
+    vertical: lg,
+  );
+  static const EdgeInsets paddingVerticalXl = EdgeInsets.symmetric(
+    vertical: xl,
+  );
 
   // Screen padding
-  static const EdgeInsets screenPadding = EdgeInsets.symmetric(horizontal: lg, vertical: lg);
-  static const EdgeInsets screenPaddingHorizontal = EdgeInsets.symmetric(horizontal: lg);
+  static const EdgeInsets screenPadding = EdgeInsets.symmetric(
+    horizontal: lg,
+    vertical: lg,
+  );
+  static const EdgeInsets screenPaddingHorizontal = EdgeInsets.symmetric(
+    horizontal: lg,
+  );
 
   // Border radius
   static const double radiusXs = 4;
