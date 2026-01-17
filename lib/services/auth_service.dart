@@ -13,7 +13,7 @@ class AuthService {
       print('🔑 Attempting login for: $email');
       print('📡 Login endpoint: ${AppConfig.login}');
       print('📡 Base URL: ${AppConfig.baseUrl}');
-      
+
       final response = await _apiService.post(AppConfig.login, {
         'email': email,
         'password': password,
@@ -24,7 +24,7 @@ class AuthService {
 
       final userData = _apiService.handleResponse(response);
       print('✅ Login response parsed successfully');
-      
+
       final user = User.fromJson(userData);
       print('✅ User object created: ${user.name}');
 

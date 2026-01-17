@@ -37,10 +37,7 @@ class ApiService {
 
   // Get headers
   Map<String, String> get _headers {
-    return {
-      'Content-Type': 'application/json',
-      'Accept': 'application/json',
-    };
+    return {'Content-Type': 'application/json', 'Accept': 'application/json'};
   }
 
   // Build full URL
@@ -71,11 +68,7 @@ class ApiService {
     final url = Uri.parse(_buildUrl(endpoint));
     try {
       final response = await http
-          .post(
-            url,
-            headers: _headers,
-            body: json.encode(body),
-          )
+          .post(url, headers: _headers, body: json.encode(body))
           .timeout(const Duration(seconds: 30));
       return response;
     } on SocketException {
@@ -92,11 +85,7 @@ class ApiService {
     final url = Uri.parse(_buildUrl(endpoint));
     try {
       final response = await http
-          .put(
-            url,
-            headers: _headers,
-            body: json.encode(body),
-          )
+          .put(url, headers: _headers, body: json.encode(body))
           .timeout(const Duration(seconds: 30));
       return response;
     } on SocketException {

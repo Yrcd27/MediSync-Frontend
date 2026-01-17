@@ -282,12 +282,17 @@ class _LiverProfileRecordsScreenState extends State<LiverProfileRecordsScreen> {
                           const SizedBox(height: 12),
 
                           SizedBox(
-                            height: 56,
+                            width: double.infinity,
+                            height: 60,
                             child: ElevatedButton(
                               onPressed: _addRecord,
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: Colors.teal,
                                 foregroundColor: Colors.white,
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                  vertical: 16,
+                                ),
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(8),
                                 ),
@@ -303,7 +308,10 @@ class _LiverProfileRecordsScreenState extends State<LiverProfileRecordsScreen> {
                                     )
                                   : const Text(
                                       'Add Record',
-                                      style: TextStyle(fontSize: 16),
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w600,
+                                      ),
                                     ),
                             ),
                           ),

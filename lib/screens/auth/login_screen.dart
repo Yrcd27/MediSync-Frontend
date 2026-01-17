@@ -29,18 +29,19 @@ class _LoginScreenState extends State<LoginScreen> {
     if (_formKey.currentState!.validate()) {
       print('🔐 Login button pressed');
       print('📧 Email: ${_emailController.text.trim()}');
-      
+
       final success = await context.read<AuthProvider>().login(
-            _emailController.text.trim(),
-            _passwordController.text,
-          );
+        _emailController.text.trim(),
+        _passwordController.text,
+      );
 
       print('✅ Login result: $success');
 
       if (!success && mounted) {
-        final errorMsg = context.read<AuthProvider>().errorMessage ?? 'Login failed';
+        final errorMsg =
+            context.read<AuthProvider>().errorMessage ?? 'Login failed';
         print('❌ Login failed: $errorMsg');
-        
+
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(errorMsg),
@@ -97,19 +98,13 @@ class _LoginScreenState extends State<LoginScreen> {
                 // Welcome text
                 const Text(
                   'Welcome Back',
-                  style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 8),
                 const Text(
                   'Sign in to access your health records',
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: Colors.grey,
-                  ),
+                  style: TextStyle(fontSize: 16, color: Colors.grey),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 32),
@@ -137,9 +132,11 @@ class _LoginScreenState extends State<LoginScreen> {
                   hint: 'Enter your password',
                   obscureText: _obscurePassword,
                   suffixIcon: IconButton(
-                    icon: Icon(_obscurePassword
-                        ? Icons.visibility
-                        : Icons.visibility_off),
+                    icon: Icon(
+                      _obscurePassword
+                          ? Icons.visibility
+                          : Icons.visibility_off,
+                    ),
                     onPressed: () {
                       setState(() {
                         _obscurePassword = !_obscurePassword;
