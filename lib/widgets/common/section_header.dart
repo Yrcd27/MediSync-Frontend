@@ -38,7 +38,7 @@ class SectionHeader extends StatelessWidget {
                   style: AppTypography.title2,
                 ),
                 if (subtitle != null) ...[
-                  const SizedBox(height: AppSpacing.xxs),
+                  const SizedBox(height: AppSpacing.xs),
                   Text(
                     subtitle!,
                     style: AppTypography.body2.copyWith(
@@ -67,7 +67,7 @@ class SectionHeader extends StatelessWidget {
                           fontWeight: FontWeight.w600,
                         ),
                       ),
-                      if (actionIcon != null) const SizedBox(width: AppSpacing.xxs),
+                      if (actionIcon != null) const SizedBox(width: AppSpacing.xs),
                     ],
                     if (actionIcon != null)
                       Icon(

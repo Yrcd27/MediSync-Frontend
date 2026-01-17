@@ -29,7 +29,7 @@ class EmptyState extends StatelessWidget {
           children: [
             Icon(
               icon ?? Icons.inbox_outlined,
-              size: AppSpacing.iconXxl,
+              size: AppSpacing.iconXl,
               color: AppColors.textTertiary,
             ),
             const SizedBox(height: AppSpacing.lg),

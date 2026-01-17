@@ -78,7 +78,7 @@ class _NavBarItem extends StatelessWidget {
                 color: isSelected ? AppColors.primary : AppColors.textTertiary,
                 size: AppSpacing.iconMd,
               ),
-              const SizedBox(height: AppSpacing.xxs),
+              const SizedBox(height: AppSpacing.xs),
               Text(
                 item.label,
                 style: AppTypography.caption.copyWith(
