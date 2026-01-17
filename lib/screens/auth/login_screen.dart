@@ -88,11 +88,13 @@ class _LoginScreenState extends State<LoginScreen> {
                 Center(
                   child: Column(
                     children: [
-                      CustomPaint(
-                        size: const Size(120, 48),
-                        painter: _PulseMarkPainter(),
+                      Image.asset(
+                        'assets/images/heart-rate.png',
+                        width: 80,
+                        height: 80,
+                        color: AppColors.primary,
                       ),
-                      const SizedBox(height: AppSpacing.lg),
+                      const SizedBox(height: AppSpacing.md),
                       Text(
                         'MediSync',
                         style: AppTypography.headline1.copyWith(
@@ -195,36 +197,4 @@ class _LoginScreenState extends State<LoginScreen> {
       ),
     );
   }
-}
-
-class _PulseMarkPainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = AppColors.primary
-      ..strokeWidth = 2.5
-      ..style = PaintingStyle.stroke
-      ..strokeCap = StrokeCap.round;
-
-    final path = Path();
-    final width = size.width;
-    final height = size.height;
-    final centerY = height / 2;
-
-    path.moveTo(0, centerY);
-    path.lineTo(width * 0.2, centerY);
-    path.lineTo(width * 0.3, centerY - height * 0.3);
-    path.lineTo(width * 0.4, centerY);
-    path.lineTo(width * 0.45, centerY);
-    path.lineTo(width * 0.5, centerY - height * 0.5);
-    path.lineTo(width * 0.55, centerY + height * 0.4);
-    path.lineTo(width * 0.6, centerY - height * 0.2);
-    path.lineTo(width * 0.7, centerY);
-    path.lineTo(width, centerY);
-
-    canvas.drawPath(path, paint);
-  }
-
-  @override
-  bool shouldRepaint(CustomPainter oldDelegate) => false;
 }
