@@ -41,14 +41,13 @@ class ViewBloodPressureScreen extends StatelessWidget {
           if (records.isEmpty) {
             return EmptyState(
               icon: Icons.favorite_rounded,
-              title: 'No Blood Pressure Records',
-              message: 'Start tracking your blood pressure',
+              message: 'No Blood Pressure Records',
+              description: 'Start tracking your blood pressure',
               actionLabel: 'Add Record',
               onAction: () => Navigator.push(
                 context,
                 MaterialPageRoute(builder: (_) => const AddBloodPressureScreen()),
               ),
-              iconColor: AppColors.bloodPressure,
             );
           }
 

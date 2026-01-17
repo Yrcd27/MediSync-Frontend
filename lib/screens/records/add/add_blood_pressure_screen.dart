@@ -299,7 +299,6 @@ class _AddBloodPressureScreenState extends State<AddBloodPressureScreen> {
                 text: 'Save Record',
                 onPressed: _isSubmitting ? null : _submitForm,
                 isLoading: _isSubmitting,
-                backgroundColor: AppColors.bloodPressure,
               ),
             ],
           ),

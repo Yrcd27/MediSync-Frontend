@@ -462,8 +462,8 @@ class RecordsHubScreen extends StatelessWidget {
         ),
         child: const EmptyState(
           icon: Icons.history_rounded,
-          title: 'No Records Yet',
-          message: 'Start adding health records to track your progress',
+          message: 'No Records Yet',
+          description: 'Start adding health records to track your progress',
         ),
       );
     }

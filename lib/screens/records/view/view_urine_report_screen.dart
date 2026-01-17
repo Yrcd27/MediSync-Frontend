@@ -31,8 +31,8 @@ class ViewUrineReportScreen extends StatelessWidget {
           final records = provider.urineRecords;
 
           if (records.isEmpty) {
-            return EmptyState(icon: Icons.opacity_rounded, title: 'No Urine Reports', message: 'Start tracking your urinalysis results',
-              actionLabel: 'Add Record', onAction: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AddUrineReportScreen())), iconColor: AppColors.urineReport);
+            return EmptyState(icon: Icons.opacity_rounded, message: 'No Urine Reports', description: 'Start tracking your urinalysis results',
+              actionLabel: 'Add Record', onAction: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AddUrineReportScreen())));
           }
 
           final sortedRecords = List<UrineReport>.from(records)..sort((a, b) => b.testDate.compareTo(a.testDate));

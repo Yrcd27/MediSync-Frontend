@@ -31,8 +31,8 @@ class ViewLiverProfileScreen extends StatelessWidget {
           final records = provider.liverRecords;
 
           if (records.isEmpty) {
-            return EmptyState(icon: Icons.local_hospital_rounded, title: 'No Liver Profile Records', message: 'Start tracking your liver function tests',
-              actionLabel: 'Add Record', onAction: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AddLiverProfileScreen())), iconColor: AppColors.liverProfile);
+            return EmptyState(icon: Icons.local_hospital_rounded, message: 'No Liver Profile Records', description: 'Start tracking your liver function tests',
+              actionLabel: 'Add Record', onAction: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AddLiverProfileScreen())));
           }
 
           final sortedRecords = List<LiverProfile>.from(records)..sort((a, b) => b.testDate.compareTo(a.testDate));

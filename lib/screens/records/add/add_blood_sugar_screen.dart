@@ -212,7 +212,6 @@ class _AddBloodSugarScreenState extends State<AddBloodSugarScreen> {
                 text: 'Save Record',
                 onPressed: _isSubmitting ? null : _submitForm,
                 isLoading: _isSubmitting,
-                backgroundColor: AppColors.bloodSugar,
               ),
             ],
           ),

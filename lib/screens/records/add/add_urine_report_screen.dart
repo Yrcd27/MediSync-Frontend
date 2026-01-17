@@ -208,7 +208,6 @@ class _AddUrineReportScreenState extends State<AddUrineReportScreen> {
                 text: 'Save Record',
                 onPressed: _isSubmitting ? null : _submitForm,
                 isLoading: _isSubmitting,
-                backgroundColor: AppColors.urineReport,
               ),
             ],
           ),

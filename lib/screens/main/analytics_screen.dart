@@ -554,9 +554,6 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
     );
   }
 
-    );
-  }
-
   Widget _buildFBCChart(BuildContext context, HealthRecordsProvider provider) {
     final filteredRecords = _filterRecordsByTimeRange(
       provider.fbcRecords.map((r) => DateTime.parse(r.testDate)).toList(),
@@ -572,11 +569,11 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
     }
 
     final hemoglobinSpots = filteredRecords.asMap().entries.map((entry) {
-      return FlSpot(entry.key.toDouble(), entry.value.hemoglobin);
+      return FlSpot(entry.key.toDouble(), entry.value.haemoglobin);
     }).toList();
 
     final wbcSpots = filteredRecords.asMap().entries.map((entry) {
-      return FlSpot(entry.key.toDouble(), entry.value.wbc / 1000);
+      return FlSpot(entry.key.toDouble(), entry.value.totalLeucocyteCount / 1000);
     }).toList();
 
     final isDark = Theme.of(context).brightness == Brightness.dark;
@@ -817,8 +814,8 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
       return FlSpot(entry.key.toDouble(), entry.value.sgpt);
     }).toList();
 
-    final sgotSpots = filteredRecords.asMap().entries.map((entry) {
-      return FlSpot(entry.key.toDouble(), entry.value.sgot);
+    final proteinSpots = filteredRecords.asMap().entries.map((entry) {
+      return FlSpot(entry.key.toDouble(), entry.value.proteinTotalSerum);
     }).toList();
 
     final isDark = Theme.of(context).brightness == Brightness.dark;
@@ -902,7 +899,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
             ),
           ),
           LineChartBarData(
-            spots: sgotSpots,
+            spots: proteinSpots,
             isCurved: true,
             color: AppColors.warning,
             barWidth: 2,

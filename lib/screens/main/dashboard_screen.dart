@@ -143,8 +143,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           label: 'View Charts',
                           color: AppColors.success,
                           onTap: () {
-                            // Switch to analytics tab
-                            DefaultTabController.of(context)?.animateTo(2);
+                            // Note: Tab switching requires parent TabController
+                            // User can manually tap Analytics tab
                           },
                         ),
                       ),

@@ -38,11 +38,10 @@ class ViewBloodCountScreen extends StatelessWidget {
           if (records.isEmpty) {
             return EmptyState(
               icon: Icons.science_rounded,
-              title: 'No Blood Count Records',
-              message: 'Start tracking your CBC results',
+              message: 'No Blood Count Records',
+              description: 'Start tracking your CBC results',
               actionLabel: 'Add Record',
               onAction: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AddBloodCountScreen())),
-              iconColor: AppColors.bloodCount,
             );
           }
 

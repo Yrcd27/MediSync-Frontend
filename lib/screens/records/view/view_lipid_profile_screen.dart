@@ -33,11 +33,10 @@ class ViewLipidProfileScreen extends StatelessWidget {
           if (records.isEmpty) {
             return EmptyState(
               icon: Icons.monitor_heart_rounded,
-              title: 'No Lipid Profile Records',
-              message: 'Start tracking your cholesterol levels',
+              message: 'No Lipid Profile Records',
+              description: 'Start tracking your cholesterol levels',
               actionLabel: 'Add Record',
               onAction: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AddLipidProfileScreen())),
-              iconColor: AppColors.lipidProfile,
             );
           }
 

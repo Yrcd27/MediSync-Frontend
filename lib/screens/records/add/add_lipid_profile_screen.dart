@@ -192,7 +192,6 @@ class _AddLipidProfileScreenState extends State<AddLipidProfileScreen> {
                 text: 'Save Record',
                 onPressed: _isSubmitting ? null : _submitForm,
                 isLoading: _isSubmitting,
-                backgroundColor: AppColors.lipidProfile,
               ),
             ],
           ),

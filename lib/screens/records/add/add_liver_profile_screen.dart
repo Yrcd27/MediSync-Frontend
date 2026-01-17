@@ -185,7 +185,6 @@ class _AddLiverProfileScreenState extends State<AddLiverProfileScreen> {
                 text: 'Save Record',
                 onPressed: _isSubmitting ? null : _submitForm,
                 isLoading: _isSubmitting,
-                backgroundColor: AppColors.liverProfile,
               ),
             ],
           ),

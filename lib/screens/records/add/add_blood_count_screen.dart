@@ -211,7 +211,6 @@ class _AddBloodCountScreenState extends State<AddBloodCountScreen> {
                 text: 'Save Record',
                 onPressed: _isSubmitting ? null : _submitForm,
                 isLoading: _isSubmitting,
-                backgroundColor: AppColors.bloodCount,
               ),
             ],
           ),

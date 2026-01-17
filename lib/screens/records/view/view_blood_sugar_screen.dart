@@ -38,11 +38,10 @@ class ViewBloodSugarScreen extends StatelessWidget {
           if (records.isEmpty) {
             return EmptyState(
               icon: Icons.water_drop_rounded,
-              title: 'No Blood Sugar Records',
-              message: 'Start tracking your fasting blood sugar',
+              message: 'No Blood Sugar Records',
+              description: 'Start tracking your fasting blood sugar',
               actionLabel: 'Add Record',
               onAction: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AddBloodSugarScreen())),
-              iconColor: AppColors.bloodSugar,
             );
           }
 

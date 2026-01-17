@@ -6,7 +6,6 @@ import '../../core/constants/app_typography.dart';
 import '../../core/constants/app_spacing.dart';
 import '../../widgets/inputs/custom_text_field.dart';
 import '../../widgets/buttons/primary_button.dart';
-import '../../widgets/feedback/loading_indicator.dart';
 import '../../widgets/feedback/empty_state.dart';
 import '../../widgets/feedback/custom_snackbar.dart';
 import '../../providers/auth_provider.dart';
