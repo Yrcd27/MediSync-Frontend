@@ -12,6 +12,7 @@ class HealthMetricCard extends StatelessWidget {
   final String? subtitle;
   final VoidCallback? onTap;
   final Widget? trailing;
+  final Color? borderColor;
 
   const HealthMetricCard({
     super.key,
@@ -23,13 +24,19 @@ class HealthMetricCard extends StatelessWidget {
     this.subtitle,
     this.onTap,
     this.trailing,
+    this.borderColor,
   });
 
   @override
   Widget build(BuildContext context) {
     return Card(
       elevation: AppSpacing.elevationSm,
-      shape: RoundedRectangleBorder(borderRadius: AppSpacing.borderRadiusMd),
+      shape: RoundedRectangleBorder(
+        borderRadius: AppSpacing.borderRadiusMd,
+        side: borderColor != null
+            ? BorderSide(color: borderColor!, width: 2)
+            : BorderSide.none,
+      ),
       child: InkWell(
         onTap: onTap,
         borderRadius: AppSpacing.borderRadiusMd,

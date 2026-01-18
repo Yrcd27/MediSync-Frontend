@@ -180,6 +180,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         unit: healthProvider.bpRecords.isNotEmpty ? 'mmHg' : '',
                         icon: Icons.favorite_rounded,
                         color: AppColors.bloodPressure,
+                        borderColor: healthProvider.bpRecords.isNotEmpty
+                            ? _getStatusColor(
+                                health.HealthAnalysis.analyzeBloodPressure(
+                                    healthProvider.bpRecords.last).status)
+                            : null,
                         subtitle: healthProvider.bpRecords.isNotEmpty
                             ? _getBPStatus(healthProvider.bpRecords.last)
                             : 'No data',
@@ -195,8 +200,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             : '',
                         icon: Icons.water_drop_rounded,
                         color: AppColors.bloodSugar,
+                        borderColor: healthProvider.fbsRecords.isNotEmpty
+                            ? _getStatusColor(
+                                health.HealthAnalysis.analyzeFBS(
+                                    healthProvider.fbsRecords.last.fbsLevel).status)
+                            : null,
                         subtitle: healthProvider.fbsRecords.isNotEmpty
-                            ? _getFBSStatus(healthProvider.fbsRecords.last.fbsLevel)
+                            ? _getFBSStatus(
+                                healthProvider.fbsRecords.last.fbsLevel,
+                              )
                             : 'No data',
                       ),
                       HealthMetricCard(
@@ -210,6 +222,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             : '',
                         icon: Icons.science_rounded,
                         color: AppColors.bloodCount,
+                        borderColor: healthProvider.fbcRecords.isNotEmpty
+                            ? _getStatusColor(
+                                health.HealthAnalysis.analyzeHaemoglobin(
+                                    healthProvider.fbcRecords.last.haemoglobin,
+                                    user.gender).status)
+                            : null,
                         subtitle: healthProvider.fbcRecords.isNotEmpty
                             ? _getHaemoglobinStatus(
                                 healthProvider.fbcRecords.last.haemoglobin,
@@ -228,9 +246,17 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             : '',
                         icon: Icons.favorite_rounded,
                         color: AppColors.lipidProfile,
+                        borderColor: healthProvider.lipidRecords.isNotEmpty
+                            ? _getStatusColor(
+                                health.HealthAnalysis.analyzeTotalCholesterol(
+                                    healthProvider.lipidRecords.last.totalCholesterol).status)
+                            : null,
                         subtitle: healthProvider.lipidRecords.isNotEmpty
                             ? _getCholesterolStatus(
-                                healthProvider.lipidRecords.last.totalCholesterol,
+                                healthProvider
+                                    .lipidRecords
+                                    .last
+                                    .totalCholesterol,
                               )
                             : 'No data',
                       ),
@@ -245,8 +271,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             : '',
                         icon: Icons.local_hospital_rounded,
                         color: AppColors.liverProfile,
+                        borderColor: healthProvider.liverRecords.isNotEmpty
+                            ? _getStatusColor(
+                                health.HealthAnalysis.analyzeSGPT(
+                                    healthProvider.liverRecords.last.sgpt).status)
+                            : null,
                         subtitle: healthProvider.liverRecords.isNotEmpty
-                            ? _getSGPTStatus(healthProvider.liverRecords.last.sgpt)
+                            ? _getSGPTStatus(
+                                healthProvider.liverRecords.last.sgpt,
+                              )
                             : 'No data',
                       ),
                       HealthMetricCard(
@@ -260,9 +293,17 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             : '',
                         icon: Icons.opacity_rounded,
                         color: AppColors.urineReport,
+                        borderColor: healthProvider.urineRecords.isNotEmpty
+                            ? _getStatusColor(
+                                health.HealthAnalysis.analyzeSpecificGravity(
+                                    healthProvider.urineRecords.last.specificGravity).status)
+                            : null,
                         subtitle: healthProvider.urineRecords.isNotEmpty
                             ? _getUrineStatus(
-                                healthProvider.urineRecords.last.specificGravity,
+                                healthProvider
+                                    .urineRecords
+                                    .last
+                                    .specificGravity,
                               )
                             : 'No data',
                       ),
@@ -603,6 +644,19 @@ class _DashboardScreenState extends State<DashboardScreen> {
         return '⚠️';
       case health.HealthStatus.abnormal:
         return '🚨';
+    }
+  }
+
+  Color _getStatusColor(health.HealthStatus status) {
+    switch (status) {
+      case health.HealthStatus.normal:
+        return Colors.green;
+      case health.HealthStatus.low:
+        return Colors.blue;
+      case health.HealthStatus.high:
+        return Colors.orange;
+      case health.HealthStatus.abnormal:
+        return Colors.red;
     }
   }
 }
