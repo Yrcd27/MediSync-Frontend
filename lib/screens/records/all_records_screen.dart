@@ -7,6 +7,7 @@ import '../../core/constants/app_typography.dart';
 import '../../providers/health_records_provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../widgets/feedback/empty_state.dart';
+import '../../widgets/cards/analysis_detail_card.dart';
 import '../../utils/health_analysis.dart' as health;
 
 class AllRecordsScreen extends StatelessWidget {
@@ -73,6 +74,10 @@ class AllRecordsScreen extends StatelessWidget {
         'date': testDate,
         'status': _getStatusIcon(analysis.status),
         'statusText': analysis.statusText,
+        'analysis': analysis,
+        'metricName': 'Blood Pressure',
+        'rawValue': '${record.systolic}/${record.diastolic}',
+        'rawUnit': 'mmHg',
       });
     }
 
@@ -88,6 +93,10 @@ class AllRecordsScreen extends StatelessWidget {
         'date': testDate,
         'status': _getStatusIcon(analysis.status),
         'statusText': analysis.statusText,
+        'analysis': analysis,
+        'metricName': 'Fasting Blood Sugar',
+        'rawValue': record.fbsLevel.toStringAsFixed(0),
+        'rawUnit': 'mg/dL',
       });
     }
 
@@ -106,6 +115,10 @@ class AllRecordsScreen extends StatelessWidget {
         'date': testDate,
         'status': _getStatusIcon(analysis.status),
         'statusText': analysis.statusText,
+        'analysis': analysis,
+        'metricName': 'Haemoglobin',
+        'rawValue': record.haemoglobin.toStringAsFixed(1),
+        'rawUnit': 'g/dL',
       });
     }
 
@@ -123,6 +136,10 @@ class AllRecordsScreen extends StatelessWidget {
         'date': testDate,
         'status': _getStatusIcon(analysis.status),
         'statusText': analysis.statusText,
+        'analysis': analysis,
+        'metricName': 'Total Cholesterol',
+        'rawValue': record.totalCholesterol.toStringAsFixed(0),
+        'rawUnit': 'mg/dL',
       });
     }
 
@@ -138,6 +155,10 @@ class AllRecordsScreen extends StatelessWidget {
         'date': testDate,
         'status': _getStatusIcon(analysis.status),
         'statusText': analysis.statusText,
+        'analysis': analysis,
+        'metricName': 'SGPT',
+        'rawValue': record.sgpt.toStringAsFixed(0),
+        'rawUnit': 'U/L',
       });
     }
 
@@ -155,6 +176,10 @@ class AllRecordsScreen extends StatelessWidget {
         'date': testDate,
         'status': _getStatusIcon(analysis.status),
         'statusText': analysis.statusText,
+        'analysis': analysis,
+        'metricName': 'Specific Gravity',
+        'rawValue': record.specificGravity.toStringAsFixed(3),
+        'rawUnit': '',
       });
     }
 
@@ -178,85 +203,95 @@ class AllRecordsScreen extends StatelessWidget {
       itemCount: allRecords.length,
       itemBuilder: (context, index) {
         final record = allRecords[index];
-        return Container(
-          margin: const EdgeInsets.only(bottom: AppSpacing.sm),
-          padding: const EdgeInsets.all(AppSpacing.md),
-          decoration: BoxDecoration(
-            color: isDark ? AppColors.darkSurface : AppColors.surface,
-            borderRadius: AppSpacing.borderRadiusMd,
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.05),
-                blurRadius: 8,
-                offset: const Offset(0, 2),
-              ),
-            ],
-          ),
-          child: Row(
-            children: [
-              Container(
-                width: 48,
-                height: 48,
-                decoration: BoxDecoration(
-                  color: (record['color'] as Color).withOpacity(0.15),
-                  borderRadius: AppSpacing.borderRadiusSm,
+        return InkWell(
+          onTap: () => _showHealthInsights(context, record),
+          borderRadius: AppSpacing.borderRadiusMd,
+          child: Container(
+            margin: const EdgeInsets.only(bottom: AppSpacing.sm),
+            padding: const EdgeInsets.all(AppSpacing.md),
+            decoration: BoxDecoration(
+              color: isDark ? AppColors.darkSurface : AppColors.surface,
+              borderRadius: AppSpacing.borderRadiusMd,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.05),
+                  blurRadius: 8,
+                  offset: const Offset(0, 2),
                 ),
-                child: Icon(
-                  record['icon'] as IconData,
-                  color: record['color'] as Color,
-                  size: 24,
+              ],
+            ),
+            child: Row(
+              children: [
+                Container(
+                  width: 48,
+                  height: 48,
+                  decoration: BoxDecoration(
+                    color: (record['color'] as Color).withOpacity(0.15),
+                    borderRadius: AppSpacing.borderRadiusSm,
+                  ),
+                  child: Icon(
+                    record['icon'] as IconData,
+                    color: record['color'] as Color,
+                    size: 24,
+                  ),
                 ),
-              ),
-              const SizedBox(width: AppSpacing.md),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                const SizedBox(width: AppSpacing.md),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        record['type'] as String,
+                        style: AppTypography.label1.copyWith(
+                          color: isDark
+                              ? AppColors.darkTextPrimary
+                              : AppColors.textPrimary,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      const SizedBox(height: AppSpacing.xs),
+                      Text(
+                        DateFormat(
+                          'MMM d, yyyy',
+                        ).format(record['date'] as DateTime),
+                        style: AppTypography.caption.copyWith(
+                          color: isDark
+                              ? AppColors.darkTextSecondary
+                              : AppColors.textSecondary,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
                     Text(
-                      record['type'] as String,
-                      style: AppTypography.label1.copyWith(
-                        color: isDark
-                            ? AppColors.darkTextPrimary
-                            : AppColors.textPrimary,
-                        fontWeight: FontWeight.w600,
+                      record['value'] as String,
+                      style: AppTypography.title3.copyWith(
+                        color: record['color'] as Color,
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
-                    const SizedBox(height: AppSpacing.xs),
-                    Text(
-                      DateFormat(
-                        'MMM d, yyyy',
-                      ).format(record['date'] as DateTime),
-                      style: AppTypography.caption.copyWith(
-                        color: isDark
-                            ? AppColors.darkTextSecondary
-                            : AppColors.textSecondary,
+                    if ((record['unit'] as String).isNotEmpty)
+                      Text(
+                        record['unit'] as String,
+                        style: AppTypography.caption.copyWith(
+                          color: isDark
+                              ? AppColors.darkTextSecondary
+                              : AppColors.textSecondary,
+                        ),
                       ),
-                    ),
                   ],
                 ),
-              ),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Text(
-                    record['value'] as String,
-                    style: AppTypography.title3.copyWith(
-                      color: record['color'] as Color,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  if ((record['unit'] as String).isNotEmpty)
-                    Text(
-                      record['unit'] as String,
-                      style: AppTypography.caption.copyWith(
-                        color: isDark
-                            ? AppColors.darkTextSecondary
-                            : AppColors.textSecondary,
-                      ),
-                    ),
-                ],
-              ),
-            ],
+                const SizedBox(width: AppSpacing.xs),
+                Icon(
+                  Icons.arrow_forward_ios,
+                  size: 16,
+                  color: AppColors.textTertiary,
+                ),
+              ],
+            ),
           ),
         );
       },
@@ -274,5 +309,179 @@ class AllRecordsScreen extends StatelessWidget {
       case health.HealthStatus.abnormal:
         return '🚨';
     }
+  }
+
+  void _showHealthInsights(BuildContext context, Map<String, dynamic> record) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final analysis = record['analysis'] as health.HealthResult;
+    final metricName = record['metricName'] as String;
+    final value = record['rawValue'] as String;
+    final unit = record['rawUnit'] as String;
+    final testType = record['type'] as String;
+    final testDate = DateFormat('MMMM d, yyyy').format(record['date'] as DateTime);
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return Dialog(
+          backgroundColor: isDark ? AppColors.darkSurface : AppColors.surface,
+          shape: RoundedRectangleBorder(
+            borderRadius: AppSpacing.borderRadiusLg,
+          ),
+          child: Container(
+            constraints: const BoxConstraints(
+              maxWidth: 400,
+              maxHeight: 600,
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Header
+                Padding(
+                  padding: const EdgeInsets.all(AppSpacing.lg),
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 48,
+                        height: 48,
+                        decoration: BoxDecoration(
+                          color: (record['color'] as Color).withOpacity(0.15),
+                          borderRadius: AppSpacing.borderRadiusSm,
+                        ),
+                        child: Icon(
+                          record['icon'] as IconData,
+                          color: record['color'] as Color,
+                          size: 24,
+                        ),
+                      ),
+                      const SizedBox(width: AppSpacing.md),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              testType,
+                              style: AppTypography.title2.copyWith(
+                                color: isDark
+                                    ? AppColors.darkTextPrimary
+                                    : AppColors.textPrimary,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            const SizedBox(height: AppSpacing.xs),
+                            Text(
+                              testDate,
+                              style: AppTypography.body2.copyWith(
+                                color: isDark
+                                    ? AppColors.darkTextSecondary
+                                    : AppColors.textSecondary,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      IconButton(
+                        onPressed: () => Navigator.pop(context),
+                        icon: Icon(
+                          Icons.close_rounded,
+                          color: isDark
+                              ? AppColors.darkTextSecondary
+                              : AppColors.textSecondary,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Divider(
+                  color: isDark ? AppColors.darkBorder : AppColors.border,
+                  height: 1,
+                ),
+                // Content
+                Flexible(
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.all(AppSpacing.lg),
+                    child: Column(
+                      children: [
+                        // Value display
+                        Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.all(AppSpacing.lg),
+                          decoration: BoxDecoration(
+                            color: (record['color'] as Color).withOpacity(0.1),
+                            borderRadius: AppSpacing.borderRadiusMd,
+                            border: Border.all(
+                              color: (record['color'] as Color).withOpacity(0.3),
+                              width: 1,
+                            ),
+                          ),
+                          child: Column(
+                            children: [
+                              Text(
+                                value,
+                                style: AppTypography.headline1.copyWith(
+                                  color: record['color'] as Color,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              if (unit.isNotEmpty) ...[
+                                const SizedBox(height: AppSpacing.xs),
+                                Text(
+                                  unit,
+                                  style: AppTypography.title3.copyWith(
+                                    color: isDark
+                                        ? AppColors.darkTextSecondary
+                                        : AppColors.textSecondary,
+                                  ),
+                                ),
+                              ],
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: AppSpacing.lg),
+                        // Health insights
+                        AnalysisDetailCard(
+                          analysis: analysis,
+                          metricName: metricName,
+                          value: value,
+                          unit: unit,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                // Footer
+                Padding(
+                  padding: const EdgeInsets.all(AppSpacing.lg),
+                  child: SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: () => Navigator.pop(context),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.primary,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(
+                          vertical: AppSpacing.md,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: AppSpacing.borderRadiusMd,
+                        ),
+                      ),
+                      child: Text(
+                        'Got it',
+                        style: AppTypography.label1.copyWith(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
   }
 }

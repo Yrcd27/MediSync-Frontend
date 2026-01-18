@@ -100,8 +100,9 @@ class ViewLipidProfileScreen extends StatelessWidget {
     Color tcColor = AppColors.success;
     if (latest.totalCholesterol >= 240) {
       tcColor = AppColors.error;
-    } else if (latest.totalCholesterol >= 200)
+    } else if (latest.totalCholesterol >= 200) {
       tcColor = AppColors.warning;
+    }
 
     return Container(
       width: double.infinity,

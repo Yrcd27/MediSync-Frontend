@@ -9,13 +9,6 @@ import '../../widgets/common/section_header.dart';
 import '../../widgets/feedback/loading_indicator.dart';
 import '../../widgets/modals/record_type_selector.dart';
 import '../../widgets/alerts/health_alert_banner.dart';
-import '../../widgets/cards/analysis_detail_card.dart';
-import '../../models/blood_pressure.dart';
-import '../../models/fasting_blood_sugar.dart';
-import '../../models/full_blood_count.dart';
-import '../../models/lipid_profile.dart';
-import '../../models/liver_profile.dart';
-import '../../models/urine_report.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_spacing.dart';
 import '../../core/constants/app_typography.dart';
@@ -256,12 +249,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   // Health Alerts Section
                   ..._buildHealthAlerts(healthProvider, user),
 
-                  // Health Insights Section
-                  const SectionHeader(title: 'Health Insights'),
-                  const SizedBox(height: AppSpacing.md),
-                  _buildHealthInsights(healthProvider, user),
-                  const SizedBox(height: AppSpacing.xl),
-
                   // Recent Reports Section
                   const SectionHeader(title: 'Recent Reports'),
                   const SizedBox(height: AppSpacing.md),
@@ -424,7 +411,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     ),
                     const SizedBox(height: AppSpacing.xs),
                     Text(
-                      '${tests.length} test(s) recorded',
+                      '${tests.length} test(s) recorded - Tap items to view insights',
                       style: AppTypography.body2.copyWith(
                         color: isDark
                             ? AppColors.darkTextSecondary
@@ -446,140 +433,72 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   itemCount: tests.length,
                   itemBuilder: (context, index) {
                     final test = tests[index] as Map<String, dynamic>;
-                    final testType = test['type'] as String;
-                    final data = test['data'];
-
-                    // Get analysis based on test type
-                    health.HealthResult? analysis;
-                    String metricName = '';
-                    String value = '';
-                    String unit = '';
-
-                    if (testType == 'Blood Pressure' && data is BloodPressure) {
-                      analysis = health.HealthAnalysis.analyzeBloodPressure(
-                        data,
-                      );
-                      metricName = 'Blood Pressure';
-                      value = '${data.systolic}/${data.diastolic}';
-                      unit = 'mmHg';
-                    } else if (testType == 'Blood Sugar' &&
-                        data is FastingBloodSugar) {
-                      analysis = health.HealthAnalysis.analyzeFBS(
-                        data.fbsLevel,
-                      );
-                      metricName = 'Fasting Blood Sugar';
-                      value = data.fbsLevel.toStringAsFixed(0);
-                      unit = 'mg/dL';
-                    } else if (testType == 'Blood Count' &&
-                        data is FullBloodCount) {
-                      // Get user data for gender
-                      final authProvider = context.read<AuthProvider>();
-                      final user = authProvider.currentUser;
-                      final gender = user?.gender ?? 'Male';
-
-                      analysis = health.HealthAnalysis.analyzeHaemoglobin(
-                        data.haemoglobin,
-                        gender,
-                      );
-                      metricName = 'Haemoglobin';
-                      value = data.haemoglobin.toStringAsFixed(1);
-                      unit = 'g/dL';
-                    } else if (testType == 'Lipid Profile' &&
-                        data is LipidProfile) {
-                      analysis = health.HealthAnalysis.analyzeTotalCholesterol(
-                        data.totalCholesterol,
-                      );
-                      metricName = 'Total Cholesterol';
-                      value = data.totalCholesterol.toStringAsFixed(0);
-                      unit = 'mg/dL';
-                    } else if (testType == 'Liver Profile' &&
-                        data is LiverProfile) {
-                      analysis = health.HealthAnalysis.analyzeSGPT(data.sgpt);
-                      metricName = 'SGPT';
-                      value = data.sgpt.toStringAsFixed(0);
-                      unit = 'U/L';
-                    } else if (testType == 'Urine Report' &&
-                        data is UrineReport) {
-                      analysis = health.HealthAnalysis.analyzeSpecificGravity(
-                        data.specificGravity,
-                      );
-                      metricName = 'Specific Gravity';
-                      value = data.specificGravity.toStringAsFixed(3);
-                      unit = '';
-                    }
-
-                    return Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Container(
-                          margin: const EdgeInsets.only(bottom: AppSpacing.sm),
-                          padding: const EdgeInsets.all(AppSpacing.md),
-                          decoration: BoxDecoration(
-                            color: AppColors.primary.withOpacity(0.1),
-                            borderRadius: AppSpacing.borderRadiusMd,
-                            border: Border.all(
-                              color: AppColors.primary.withOpacity(0.3),
-                              width: 1,
-                            ),
-                          ),
-                          child: Row(
-                            children: [
-                              Container(
-                                width: 48,
-                                height: 48,
-                                decoration: BoxDecoration(
-                                  color: AppColors.primary.withOpacity(0.2),
-                                  borderRadius: AppSpacing.borderRadiusSm,
-                                ),
-                                child: Icon(
-                                  test['icon'] as IconData,
-                                  color: AppColors.primary,
-                                  size: 24,
-                                ),
-                              ),
-                              const SizedBox(width: AppSpacing.md),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      test['type'] as String,
-                                      style: AppTypography.label1.copyWith(
-                                        color: isDark
-                                            ? AppColors.darkTextPrimary
-                                            : AppColors.textPrimary,
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                    ),
-                                    const SizedBox(height: AppSpacing.xs),
-                                    Text(
-                                      test['value'] as String,
-                                      style: AppTypography.body2.copyWith(
-                                        color: isDark
-                                            ? AppColors.darkTextSecondary
-                                            : AppColors.textSecondary,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
+                    return InkWell(
+                      onTap: () {
+                        Navigator.pop(context);
+                        Navigator.pushNamed(context, '/all-records');
+                      },
+                      borderRadius: AppSpacing.borderRadiusMd,
+                      child: Container(
+                        margin: const EdgeInsets.only(bottom: AppSpacing.sm),
+                        padding: const EdgeInsets.all(AppSpacing.md),
+                        decoration: BoxDecoration(
+                          color: AppColors.primary.withOpacity(0.1),
+                          borderRadius: AppSpacing.borderRadiusMd,
+                          border: Border.all(
+                            color: AppColors.primary.withOpacity(0.3),
+                            width: 1,
                           ),
                         ),
-                        // Add analysis card if available
-                        if (analysis != null)
-                          Padding(
-                            padding: const EdgeInsets.only(
-                              bottom: AppSpacing.md,
+                        child: Row(
+                          children: [
+                            Container(
+                              width: 48,
+                              height: 48,
+                              decoration: BoxDecoration(
+                                color: AppColors.primary.withOpacity(0.2),
+                                borderRadius: AppSpacing.borderRadiusSm,
+                              ),
+                              child: Icon(
+                                test['icon'] as IconData,
+                                color: AppColors.primary,
+                                size: 24,
+                              ),
                             ),
-                            child: AnalysisDetailCard(
-                              analysis: analysis,
-                              metricName: metricName,
-                              value: value,
-                              unit: unit,
+                            const SizedBox(width: AppSpacing.md),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    test['type'] as String,
+                                    style: AppTypography.label1.copyWith(
+                                      color: isDark
+                                          ? AppColors.darkTextPrimary
+                                          : AppColors.textPrimary,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                  const SizedBox(height: AppSpacing.xs),
+                                  Text(
+                                    test['value'] as String,
+                                    style: AppTypography.body2.copyWith(
+                                      color: isDark
+                                          ? AppColors.darkTextSecondary
+                                          : AppColors.textSecondary,
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
-                          ),
-                      ],
+                            Icon(
+                              Icons.arrow_forward_ios,
+                              size: 16,
+                              color: AppColors.textTertiary,
+                            ),
+                          ],
+                        ),
+                      ),
                     );
                   },
                 ),
@@ -626,19 +545,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
         ),
       ),
     );
-  }
-
-  Color _getStatusColor(health.HealthStatus status) {
-    switch (status) {
-      case health.HealthStatus.normal:
-        return Colors.green;
-      case health.HealthStatus.low:
-        return Colors.blue;
-      case health.HealthStatus.high:
-        return Colors.orange;
-      case health.HealthStatus.abnormal:
-        return Colors.red;
-    }
   }
 
   List<Widget> _buildHealthAlerts(
@@ -757,182 +663,5 @@ class _DashboardScreenState extends State<DashboardScreen> {
     return [];
   }
 
-  Widget _buildHealthInsights(HealthRecordsProvider provider, dynamic user) {
-    final insights = <Map<String, dynamic>>[];
 
-    // Analyze each metric
-    if (provider.bpRecords.isNotEmpty) {
-      final analysis = health.HealthAnalysis.analyzeBloodPressure(
-        provider.bpRecords.last,
-      );
-      if (analysis.status != health.HealthStatus.normal) {
-        insights.add({
-          'title': 'Blood Pressure',
-          'status': analysis.statusText,
-          'recommendation': analysis.recommendation,
-          'color': _getStatusColor(analysis.status),
-        });
-      }
-    }
-
-    if (provider.fbsRecords.isNotEmpty) {
-      final analysis = health.HealthAnalysis.analyzeFBS(
-        provider.fbsRecords.last.fbsLevel,
-      );
-      if (analysis.status != health.HealthStatus.normal) {
-        insights.add({
-          'title': 'Blood Sugar',
-          'status': analysis.statusText,
-          'recommendation': analysis.recommendation,
-          'color': _getStatusColor(analysis.status),
-        });
-      }
-    }
-
-    if (provider.fbcRecords.isNotEmpty) {
-      final analysis = health.HealthAnalysis.analyzeHaemoglobin(
-        provider.fbcRecords.last.haemoglobin,
-        user.gender,
-      );
-      if (analysis.status != health.HealthStatus.normal) {
-        insights.add({
-          'title': 'Haemoglobin',
-          'status': analysis.statusText,
-          'recommendation': analysis.recommendation,
-          'color': _getStatusColor(analysis.status),
-        });
-      }
-    }
-
-    if (provider.lipidRecords.isNotEmpty) {
-      final analysis = health.HealthAnalysis.analyzeTotalCholesterol(
-        provider.lipidRecords.last.totalCholesterol,
-      );
-      if (analysis.status != health.HealthStatus.normal) {
-        insights.add({
-          'title': 'Cholesterol',
-          'status': analysis.statusText,
-          'recommendation': analysis.recommendation,
-          'color': _getStatusColor(analysis.status),
-        });
-      }
-    }
-
-    if (provider.liverRecords.isNotEmpty) {
-      final analysis = health.HealthAnalysis.analyzeSGPT(
-        provider.liverRecords.last.sgpt,
-      );
-      if (analysis.status != health.HealthStatus.normal) {
-        insights.add({
-          'title': 'Liver Function',
-          'status': analysis.statusText,
-          'recommendation': analysis.recommendation,
-          'color': _getStatusColor(analysis.status),
-        });
-      }
-    }
-
-    if (provider.urineRecords.isNotEmpty) {
-      final analysis = health.HealthAnalysis.analyzeSpecificGravity(
-        provider.urineRecords.last.specificGravity,
-      );
-      if (analysis.status != health.HealthStatus.normal) {
-        insights.add({
-          'title': 'Urine Test',
-          'status': analysis.statusText,
-          'recommendation': analysis.recommendation,
-          'color': _getStatusColor(analysis.status),
-        });
-      }
-    }
-
-    if (insights.isEmpty) {
-      return Card(
-        child: Padding(
-          padding: const EdgeInsets.all(AppSpacing.lg),
-          child: Row(
-            children: [
-              const Icon(Icons.check_circle, color: Colors.green, size: 32),
-              const SizedBox(width: AppSpacing.md),
-              Expanded(
-                child: Text(
-                  'All metrics are within normal range',
-                  style: AppTypography.body1.copyWith(
-                    color: AppColors.textPrimary,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      );
-    }
-
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(AppSpacing.lg),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Icon(
-                  Icons.warning_rounded,
-                  color: Colors.orange,
-                  size: AppSpacing.iconMd,
-                ),
-                const SizedBox(width: AppSpacing.sm),
-                Text(
-                  '${insights.length} ${insights.length == 1 ? 'area' : 'areas'} need attention',
-                  style: AppTypography.body1.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: AppSpacing.md),
-            ...insights.map(
-              (insight) => Padding(
-                padding: const EdgeInsets.only(bottom: AppSpacing.sm),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Container(
-                      width: 4,
-                      height: 40,
-                      decoration: BoxDecoration(
-                        color: insight['color'],
-                        borderRadius: BorderRadius.circular(2),
-                      ),
-                    ),
-                    const SizedBox(width: AppSpacing.sm),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            '${insight['title']}: ${insight['status']}',
-                            style: AppTypography.body2.copyWith(
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                          Text(
-                            insight['recommendation'],
-                            style: AppTypography.caption.copyWith(
-                              color: AppColors.textSecondary,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
 }

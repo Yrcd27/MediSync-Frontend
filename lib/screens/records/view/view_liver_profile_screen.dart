@@ -99,8 +99,9 @@ class ViewLiverProfileScreen extends StatelessWidget {
     Color sgptColor = AppColors.success;
     if (latest.sgpt > 56) {
       sgptColor = AppColors.error;
-    } else if (latest.sgpt > 40)
+    } else if (latest.sgpt > 40) {
       sgptColor = AppColors.warning;
+    }
 
     return Container(
       width: double.infinity,
