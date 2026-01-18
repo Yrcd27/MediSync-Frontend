@@ -188,13 +188,63 @@ class ViewBloodCountScreen extends StatelessWidget {
             height: 200,
             child: LineChart(
               LineChartData(
-                gridData: FlGridData(show: true, drawVerticalLine: false),
+                minY: 8,
+                maxY: 20,
+                gridData: FlGridData(
+                  show: true,
+                  drawVerticalLine: false,
+                  horizontalInterval: 2,
+                  getDrawingHorizontalLine: (value) {
+                    final isLowReference = value == 12;
+                    final isHighReference = value == 17.5;
+                    final isReference = isLowReference || isHighReference;
+                    return FlLine(
+                      color: isReference
+                          ? (isLowReference ? AppColors.error : AppColors.warning)
+                              .withOpacity(0.6)
+                          : (isDark ? AppColors.darkBorder : AppColors.border)
+                              .withOpacity(0.3),
+                      strokeWidth: isReference ? 2 : 1,
+                      dashArray: isReference ? [5, 5] : null,
+                    );
+                  },
+                ),
                 titlesData: FlTitlesData(
                   leftTitles: AxisTitles(
-                    sideTitles: SideTitles(showTitles: true, reservedSize: 40),
+                    sideTitles: SideTitles(
+                      showTitles: true,
+                      reservedSize: 45,
+                      interval: 2,
+                      getTitlesWidget: (value, meta) {
+                        return Text(
+                          '${value.toStringAsFixed(1)}',
+                          style: AppTypography.caption.copyWith(
+                            color: isDark ? AppColors.darkTextSecondary : AppColors.textSecondary,
+                            fontSize: 10,
+                          ),
+                        );
+                      },
+                    ),
                   ),
                   bottomTitles: AxisTitles(
-                    sideTitles: SideTitles(showTitles: false),
+                    sideTitles: SideTitles(
+                      showTitles: true,
+                      reservedSize: 30,
+                      interval: (chartRecords.length / 4).ceil().toDouble(),
+                      getTitlesWidget: (value, meta) {
+                        final index = value.toInt();
+                        if (index >= 0 && index < chartRecords.length) {
+                          return Text(
+                            DateFormat('MM/dd').format(DateTime.parse(chartRecords[index].testDate)),
+                            style: AppTypography.caption.copyWith(
+                              color: isDark ? AppColors.darkTextSecondary : AppColors.textSecondary,
+                              fontSize: 9,
+                            ),
+                          );
+                        }
+                        return const SizedBox();
+                      },
+                    ),
                   ),
                   topTitles: AxisTitles(
                     sideTitles: SideTitles(showTitles: false),
@@ -204,6 +254,73 @@ class ViewBloodCountScreen extends StatelessWidget {
                   ),
                 ),
                 borderData: FlBorderData(show: false),
+                lineTouchData: LineTouchData(
+                  enabled: true,
+                  touchTooltipData: LineTouchTooltipData(
+                    tooltipBgColor: isDark ? AppColors.darkSurface : AppColors.surface,
+                    tooltipRoundedRadius: 8,
+                    tooltipPadding: const EdgeInsets.all(8),
+                    tooltipMargin: 8,
+                    getTooltipItems: (touchedSpots) {
+                      return touchedSpots.map((spot) {
+                        final record = chartRecords[spot.x.toInt()];
+                        final date = DateFormat('MMM dd, yyyy').format(DateTime.parse(record.testDate));
+                        final hemoglobin = record.haemoglobin.toStringAsFixed(1);
+                        String status = 'Normal';
+                        if (record.haemoglobin < 12) {
+                          status = 'Low (Anemia)';
+                        } else if (record.haemoglobin > 17.5) {
+                          status = 'High';
+                        }
+                        
+                        return LineTooltipItem(
+                          'Hemoglobin: $hemoglobin g/dL\nStatus: $status\n$date',
+                          TextStyle(
+                            color: spot.bar.color,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 12,
+                          ),
+                        );
+                      }).toList();
+                    },
+                  ),
+                ),
+                extraLinesData: ExtraLinesData(
+                  horizontalLines: [
+                    HorizontalLine(
+                      y: 12,
+                      color: AppColors.error,
+                      strokeWidth: 1,
+                      dashArray: [5, 5],
+                      label: HorizontalLineLabel(
+                        show: true,
+                        labelResolver: (line) => 'Low Hemoglobin',
+                        style: TextStyle(
+                          color: AppColors.error,
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        alignment: Alignment.topRight,
+                      ),
+                    ),
+                    HorizontalLine(
+                      y: 17.5,
+                      color: AppColors.warning,
+                      strokeWidth: 1,
+                      dashArray: [5, 5],
+                      label: HorizontalLineLabel(
+                        show: true,
+                        labelResolver: (line) => 'High Hemoglobin',
+                        style: TextStyle(
+                          color: AppColors.warning,
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        alignment: Alignment.topRight,
+                      ),
+                    ),
+                  ],
+                ),
                 lineBarsData: [
                   LineChartBarData(
                     spots: chartRecords
@@ -224,6 +341,8 @@ class ViewBloodCountScreen extends StatelessWidget {
                   ),
                 ],
               ),
+              duration: const Duration(milliseconds: 300),
+              curve: Curves.easeInOut,
             ),
           ),
         ],
