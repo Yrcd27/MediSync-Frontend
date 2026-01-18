@@ -260,9 +260,9 @@ class ViewLipidProfileScreen extends StatelessWidget {
                         final index = value.toInt();
                         if (index >= 0 && index < chartRecords.length) {
                           return Text(
-                            DateFormat(
-                              'MM/dd',
-                            ).format(DateTime.parse(chartRecords[index].testDate)),
+                            DateFormat('MM/dd').format(
+                              DateTime.parse(chartRecords[index].testDate),
+                            ),
                             style: AppTypography.caption.copyWith(fontSize: 10),
                           );
                         }
@@ -351,32 +351,12 @@ class ViewLipidProfileScreen extends StatelessWidget {
                       color: Colors.green.withOpacity(0.7),
                       strokeWidth: 2,
                       dashArray: [5, 3],
-                      label: HorizontalLineLabel(
-                        show: true,
-                        labelResolver: (line) => 'TC Normal (200 mg/dL)',
-                        style: TextStyle(
-                          color: Colors.green,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 10,
-                        ),
-                        alignment: Alignment.topRight,
-                      ),
                     ),
                     HorizontalLine(
                       y: 240,
                       color: Colors.red.withOpacity(0.7),
                       strokeWidth: 2,
                       dashArray: [5, 3],
-                      label: HorizontalLineLabel(
-                        show: true,
-                        labelResolver: (line) => 'TC High (240 mg/dL)',
-                        style: TextStyle(
-                          color: Colors.red,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 10,
-                        ),
-                        alignment: Alignment.topRight,
-                      ),
                     ),
                     // LDL References
                     HorizontalLine(
@@ -384,32 +364,12 @@ class ViewLipidProfileScreen extends StatelessWidget {
                       color: Colors.blue.withOpacity(0.7),
                       strokeWidth: 2,
                       dashArray: [3, 2],
-                      label: HorizontalLineLabel(
-                        show: true,
-                        labelResolver: (line) => 'LDL Optimal (100 mg/dL)',
-                        style: TextStyle(
-                          color: Colors.blue,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 10,
-                        ),
-                        alignment: Alignment.bottomLeft,
-                      ),
                     ),
                     HorizontalLine(
                       y: 160,
                       color: Colors.orange.withOpacity(0.7),
                       strokeWidth: 2,
                       dashArray: [3, 2],
-                      label: HorizontalLineLabel(
-                        show: true,
-                        labelResolver: (line) => 'LDL High (160 mg/dL)',
-                        style: TextStyle(
-                          color: Colors.orange,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 10,
-                        ),
-                        alignment: Alignment.bottomLeft,
-                      ),
                     ),
                     // HDL Reference
                     HorizontalLine(
@@ -417,16 +377,6 @@ class ViewLipidProfileScreen extends StatelessWidget {
                       color: Colors.purple.withOpacity(0.7),
                       strokeWidth: 2,
                       dashArray: [2, 1],
-                      label: HorizontalLineLabel(
-                        show: true,
-                        labelResolver: (line) => 'HDL Protective (60 mg/dL)',
-                        style: TextStyle(
-                          color: Colors.purple,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 10,
-                        ),
-                        alignment: Alignment.centerLeft,
-                      ),
                     ),
                   ],
                 ),

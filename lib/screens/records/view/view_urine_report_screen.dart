@@ -224,9 +224,9 @@ class ViewUrineReportScreen extends StatelessWidget {
                         final index = value.toInt();
                         if (index >= 0 && index < chartRecords.length) {
                           return Text(
-                            DateFormat(
-                              'MM/dd',
-                            ).format(DateTime.parse(chartRecords[index].testDate)),
+                            DateFormat('MM/dd').format(
+                              DateTime.parse(chartRecords[index].testDate),
+                            ),
                             style: AppTypography.caption.copyWith(fontSize: 10),
                           );
                         }
@@ -307,32 +307,12 @@ class ViewUrineReportScreen extends StatelessWidget {
                       color: Colors.green.withOpacity(0.7),
                       strokeWidth: 2,
                       dashArray: [5, 3],
-                      label: HorizontalLineLabel(
-                        show: true,
-                        labelResolver: (line) => 'Normal Min (1.005)',
-                        style: TextStyle(
-                          color: Colors.green,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 9,
-                        ),
-                        alignment: Alignment.bottomLeft,
-                      ),
                     ),
                     HorizontalLine(
                       y: 1.030,
                       color: Colors.orange.withOpacity(0.7),
                       strokeWidth: 2,
                       dashArray: [5, 3],
-                      label: HorizontalLineLabel(
-                        show: true,
-                        labelResolver: (line) => 'Normal Max (1.030)',
-                        style: TextStyle(
-                          color: Colors.orange,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 9,
-                        ),
-                        alignment: Alignment.topLeft,
-                      ),
                     ),
                     // Optimal Range Indicator
                     HorizontalLine(
@@ -340,16 +320,6 @@ class ViewUrineReportScreen extends StatelessWidget {
                       color: Colors.blue.withOpacity(0.6),
                       strokeWidth: 2,
                       dashArray: [3, 2],
-                      label: HorizontalLineLabel(
-                        show: true,
-                        labelResolver: (line) => 'Optimal (1.020)',
-                        style: TextStyle(
-                          color: Colors.blue,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 9,
-                        ),
-                        alignment: Alignment.centerRight,
-                      ),
                     ),
                   ],
                 ),

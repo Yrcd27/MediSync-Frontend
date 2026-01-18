@@ -350,32 +350,12 @@ class ViewBloodSugarScreen extends StatelessWidget {
                       color: AppColors.warning,
                       strokeWidth: 1,
                       dashArray: [5, 5],
-                      label: HorizontalLineLabel(
-                        show: true,
-                        labelResolver: (line) => 'Normal Limit',
-                        style: TextStyle(
-                          color: AppColors.warning,
-                          fontSize: 10,
-                          fontWeight: FontWeight.bold,
-                        ),
-                        alignment: Alignment.topRight,
-                      ),
                     ),
                     HorizontalLine(
                       y: 126,
                       color: AppColors.error,
                       strokeWidth: 1,
                       dashArray: [5, 5],
-                      label: HorizontalLineLabel(
-                        show: true,
-                        labelResolver: (line) => 'Diabetic Threshold',
-                        style: TextStyle(
-                          color: AppColors.error,
-                          fontSize: 10,
-                          fontWeight: FontWeight.bold,
-                        ),
-                        alignment: Alignment.topRight,
-                      ),
                     ),
                   ],
                 ),

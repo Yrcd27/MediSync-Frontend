@@ -306,32 +306,12 @@ class ViewBloodCountScreen extends StatelessWidget {
                       color: AppColors.error,
                       strokeWidth: 1,
                       dashArray: [5, 5],
-                      label: HorizontalLineLabel(
-                        show: true,
-                        labelResolver: (line) => 'Low Hemoglobin',
-                        style: TextStyle(
-                          color: AppColors.error,
-                          fontSize: 10,
-                          fontWeight: FontWeight.bold,
-                        ),
-                        alignment: Alignment.topRight,
-                      ),
                     ),
                     HorizontalLine(
                       y: 17.5,
                       color: AppColors.warning,
                       strokeWidth: 1,
                       dashArray: [5, 5],
-                      label: HorizontalLineLabel(
-                        show: true,
-                        labelResolver: (line) => 'High Hemoglobin',
-                        style: TextStyle(
-                          color: AppColors.warning,
-                          fontSize: 10,
-                          fontWeight: FontWeight.bold,
-                        ),
-                        alignment: Alignment.topRight,
-                      ),
                     ),
                   ],
                 ),

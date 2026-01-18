@@ -222,7 +222,7 @@ class ViewLiverProfileScreen extends StatelessWidget {
             child: LineChart(
               LineChartData(
                 gridData: FlGridData(
-                  show: true, 
+                  show: true,
                   drawVerticalLine: false,
                   getDrawingHorizontalLine: (value) {
                     return FlLine(
@@ -253,7 +253,9 @@ class ViewLiverProfileScreen extends StatelessWidget {
                         final index = value.toInt();
                         if (index >= 0 && index < chartRecords.length) {
                           return Text(
-                            DateFormat('MM/dd').format(DateTime.parse(chartRecords[index].testDate)),
+                            DateFormat('MM/dd').format(
+                              DateTime.parse(chartRecords[index].testDate),
+                            ),
                             style: AppTypography.caption.copyWith(fontSize: 10),
                           );
                         }
@@ -276,23 +278,28 @@ class ViewLiverProfileScreen extends StatelessWidget {
                 lineTouchData: LineTouchData(
                   enabled: true,
                   touchTooltipData: LineTouchTooltipData(
-                    tooltipBgColor: isDark ? AppColors.darkSurface : AppColors.surface,
+                    tooltipBgColor: isDark
+                        ? AppColors.darkSurface
+                        : AppColors.surface,
                     tooltipBorder: BorderSide(
                       color: isDark ? AppColors.darkBorder : AppColors.border,
                     ),
                     getTooltipItems: (List<LineBarSpot> touchedSpots) {
                       return touchedSpots.map((spot) {
                         final record = chartRecords[spot.x.toInt()];
-                        final date = DateFormat('MMM dd, yyyy').format(DateTime.parse(record.testDate));
-                        
+                        final date = DateFormat(
+                          'MMM dd, yyyy',
+                        ).format(DateTime.parse(record.testDate));
+
                         String label = '';
                         String status = '';
                         Color lineColor = AppColors.primary;
-                        
-                        label = 'SGPT (ALT): ${record.sgpt.toStringAsFixed(0)} U/L';
+
+                        label =
+                            'SGPT (ALT): ${record.sgpt.toStringAsFixed(0)} U/L';
                         status = record.sgpt <= 56 ? 'Normal' : 'Elevated';
                         lineColor = AppColors.liverProfile;
-                        
+
                         return LineTooltipItem(
                           '$label\n$status\n$date',
                           TextStyle(
@@ -313,16 +320,6 @@ class ViewLiverProfileScreen extends StatelessWidget {
                       color: Colors.orange.withOpacity(0.7),
                       strokeWidth: 2,
                       dashArray: [5, 3],
-                      label: HorizontalLineLabel(
-                        show: true,
-                        labelResolver: (line) => 'SGPT Normal Limit (56 U/L)',
-                        style: TextStyle(
-                          color: Colors.orange,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 10,
-                        ),
-                        alignment: Alignment.topRight,
-                      ),
                     ),
                     // SGOT Normal Range
                     HorizontalLine(
@@ -330,16 +327,6 @@ class ViewLiverProfileScreen extends StatelessWidget {
                       color: Colors.purple.withOpacity(0.7),
                       strokeWidth: 2,
                       dashArray: [3, 2],
-                      label: HorizontalLineLabel(
-                        show: true,
-                        labelResolver: (line) => 'SGOT Normal Limit (40 U/L)',
-                        style: TextStyle(
-                          color: Colors.purple,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 10,
-                        ),
-                        alignment: Alignment.centerRight,
-                      ),
                     ),
                     // Normal Zone Indicator
                     HorizontalLine(
@@ -347,16 +334,6 @@ class ViewLiverProfileScreen extends StatelessWidget {
                       color: Colors.green.withOpacity(0.5),
                       strokeWidth: 2,
                       dashArray: [2, 1],
-                      label: HorizontalLineLabel(
-                        show: true,
-                        labelResolver: (line) => 'Normal Zone',
-                        style: TextStyle(
-                          color: Colors.green,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 10,
-                        ),
-                        alignment: Alignment.bottomLeft,
-                      ),
                     ),
                   ],
                 ),
@@ -382,7 +359,6 @@ class ViewLiverProfileScreen extends StatelessWidget {
                       },
                     ),
                   ),
-
                 ],
               ),
               duration: const Duration(milliseconds: 350),
@@ -392,9 +368,7 @@ class ViewLiverProfileScreen extends StatelessWidget {
           const SizedBox(height: AppSpacing.md),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              _buildLegendItem('SGPT (ALT)', AppColors.liverProfile),
-            ],
+            children: [_buildLegendItem('SGPT (ALT)', AppColors.liverProfile)],
           ),
         ],
       ),

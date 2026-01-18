@@ -401,18 +401,10 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
       LineChartData(
         gridData: FlGridData(
           show: true,
-          drawVerticalLine: true,
+          drawVerticalLine: false,
           getDrawingHorizontalLine: (value) {
             return FlLine(
-              color: (isDark ? AppColors.darkBorder : AppColors.border)
-                  .withOpacity(0.3),
-              strokeWidth: 1,
-            );
-          },
-          getDrawingVerticalLine: (value) {
-            return FlLine(
-              color: (isDark ? AppColors.darkBorder : AppColors.border)
-                  .withOpacity(0.3),
+              color: Colors.grey.withOpacity(0.3),
               strokeWidth: 1,
             );
           },
@@ -422,6 +414,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
             sideTitles: SideTitles(
               showTitles: true,
               reservedSize: 40,
+              interval: 20,
               getTitlesWidget: (value, meta) {
                 return Text(
                   value.toInt().toString(),
@@ -429,6 +422,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                     color: isDark
                         ? AppColors.darkTextSecondary
                         : AppColors.textSecondary,
+                    fontSize: 11,
                   ),
                 );
               },
@@ -444,11 +438,64 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
             sideTitles: SideTitles(showTitles: false),
           ),
         ),
-        borderData: FlBorderData(
-          show: true,
-          border: Border.all(
-            color: isDark ? AppColors.darkBorder : AppColors.border,
+        borderData: FlBorderData(show: false),
+        minX: 0,
+        maxX: (filteredRecords.length - 1).toDouble(),
+        minY: 50,
+        maxY: 200,
+        lineTouchData: LineTouchData(
+          enabled: true,
+          touchTooltipData: LineTouchTooltipData(
+            tooltipBgColor: isDark ? AppColors.darkSurface : AppColors.surface,
+            tooltipBorder: BorderSide(
+              color: isDark ? AppColors.darkBorder : AppColors.border,
+            ),
+            getTooltipItems: (List<LineBarSpot> touchedSpots) {
+              return touchedSpots.map((spot) {
+                final record = filteredRecords[spot.x.toInt()];
+                final label = spot.barIndex == 0 ? 'Systolic' : 'Diastolic';
+                final value = spot.barIndex == 0 ? record.systolic : record.diastolic;
+                
+                String status = '';
+                if (spot.barIndex == 0) {
+                  status = value < 120 ? 'Normal' : value < 130 ? 'Elevated' : value < 140 ? 'Stage 1 High' : 'Stage 2 High';
+                } else {
+                  status = value < 80 ? 'Normal' : value < 85 ? 'Elevated' : value < 90 ? 'Stage 1 High' : 'Stage 2 High';
+                }
+
+                return LineTooltipItem(
+                  '$label: ${value.toStringAsFixed(0)} mmHg\\n$status',
+                  TextStyle(
+                    color: spot.bar.color,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 12,
+                  ),
+                );
+              }).toList();
+            },
           ),
+        ),
+        extraLinesData: ExtraLinesData(
+          horizontalLines: [
+            HorizontalLine(
+              y: 120,
+              color: AppColors.success,
+              strokeWidth: 1,
+              dashArray: [5, 5],
+            ),
+            HorizontalLine(
+              y: 130,
+              color: AppColors.warning,
+              strokeWidth: 1,
+              dashArray: [5, 5],
+            ),
+            HorizontalLine(
+              y: 140,
+              color: AppColors.error,
+              strokeWidth: 1,
+              dashArray: [5, 5],
+            ),
+          ],
         ),
         lineBarsData: [
           LineChartBarData(
@@ -464,15 +511,9 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                   radius: 4,
                   color: AppColors.bloodPressure,
                   strokeWidth: 2,
-                  strokeColor: isDark
-                      ? AppColors.darkSurface
-                      : AppColors.surface,
+                  strokeColor: Colors.white,
                 );
               },
-            ),
-            belowBarData: BarAreaData(
-              show: true,
-              color: AppColors.bloodPressure.withOpacity(0.1),
             ),
           ),
           LineChartBarData(
@@ -488,15 +529,15 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                   radius: 4,
                   color: AppColors.primary,
                   strokeWidth: 2,
-                  strokeColor: isDark
-                      ? AppColors.darkSurface
-                      : AppColors.surface,
+                  strokeColor: Colors.white,
                 );
               },
             ),
           ),
         ],
       ),
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeInOut,
     );
   }
 
