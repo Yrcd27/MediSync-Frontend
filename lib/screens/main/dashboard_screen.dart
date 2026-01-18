@@ -11,6 +11,7 @@ import '../../widgets/modals/record_type_selector.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_spacing.dart';
 import '../../core/constants/app_typography.dart';
+import '../../utils/health_analysis.dart' as health;
 import 'analytics_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
@@ -180,7 +181,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         icon: Icons.favorite_rounded,
                         color: AppColors.bloodPressure,
                         subtitle: healthProvider.bpRecords.isNotEmpty
-                            ? '${healthProvider.bpRecords.length} records'
+                            ? _getBPStatus(healthProvider.bpRecords.last)
                             : 'No data',
                       ),
                       HealthMetricCard(
@@ -195,7 +196,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         icon: Icons.water_drop_rounded,
                         color: AppColors.bloodSugar,
                         subtitle: healthProvider.fbsRecords.isNotEmpty
-                            ? '${healthProvider.fbsRecords.length} records'
+                            ? _getFBSStatus(healthProvider.fbsRecords.last.fbsLevel)
                             : 'No data',
                       ),
                       HealthMetricCard(
@@ -210,7 +211,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         icon: Icons.science_rounded,
                         color: AppColors.bloodCount,
                         subtitle: healthProvider.fbcRecords.isNotEmpty
-                            ? '${healthProvider.fbcRecords.length} records'
+                            ? _getHaemoglobinStatus(
+                                healthProvider.fbcRecords.last.haemoglobin,
+                                user.gender,
+                              )
                             : 'No data',
                       ),
                       HealthMetricCard(
@@ -222,10 +226,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         unit: healthProvider.lipidRecords.isNotEmpty
                             ? 'mg/dL'
                             : '',
-                        icon: Icons.monitor_heart_rounded,
+                        icon: Icons.favorite_rounded,
                         color: AppColors.lipidProfile,
                         subtitle: healthProvider.lipidRecords.isNotEmpty
-                            ? '${healthProvider.lipidRecords.length} records'
+                            ? _getCholesterolStatus(
+                                healthProvider.lipidRecords.last.totalCholesterol,
+                              )
                             : 'No data',
                       ),
                       HealthMetricCard(
@@ -240,7 +246,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         icon: Icons.local_hospital_rounded,
                         color: AppColors.liverProfile,
                         subtitle: healthProvider.liverRecords.isNotEmpty
-                            ? '${healthProvider.liverRecords.length} records'
+                            ? _getSGPTStatus(healthProvider.liverRecords.last.sgpt)
                             : 'No data',
                       ),
                       HealthMetricCard(
@@ -255,7 +261,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         icon: Icons.opacity_rounded,
                         color: AppColors.urineReport,
                         subtitle: healthProvider.urineRecords.isNotEmpty
-                            ? '${healthProvider.urineRecords.length} records'
+                            ? _getUrineStatus(
+                                healthProvider.urineRecords.last.specificGravity,
+                              )
                             : 'No data',
                       ),
                     ],
@@ -546,5 +554,55 @@ class _DashboardScreenState extends State<DashboardScreen> {
         ),
       ),
     );
+  }
+
+  // Health status helper methods
+  String _getBPStatus(dynamic record) {
+    final analysis = health.HealthAnalysis.analyzeBloodPressure(record);
+    final icon = _getStatusIcon(analysis.status);
+    return '$icon ${analysis.statusText}';
+  }
+
+  String _getFBSStatus(double fbsLevel) {
+    final analysis = health.HealthAnalysis.analyzeFBS(fbsLevel);
+    final icon = _getStatusIcon(analysis.status);
+    return '$icon ${analysis.statusText}';
+  }
+
+  String _getHaemoglobinStatus(double value, String gender) {
+    final analysis = health.HealthAnalysis.analyzeHaemoglobin(value, gender);
+    final icon = _getStatusIcon(analysis.status);
+    return '$icon ${analysis.statusText}';
+  }
+
+  String _getCholesterolStatus(double value) {
+    final analysis = health.HealthAnalysis.analyzeTotalCholesterol(value);
+    final icon = _getStatusIcon(analysis.status);
+    return '$icon ${analysis.statusText}';
+  }
+
+  String _getSGPTStatus(double value) {
+    final analysis = health.HealthAnalysis.analyzeSGPT(value);
+    final icon = _getStatusIcon(analysis.status);
+    return '$icon ${analysis.statusText}';
+  }
+
+  String _getUrineStatus(double sg) {
+    final analysis = health.HealthAnalysis.analyzeSpecificGravity(sg);
+    final icon = _getStatusIcon(analysis.status);
+    return '$icon ${analysis.statusText}';
+  }
+
+  String _getStatusIcon(health.HealthStatus status) {
+    switch (status) {
+      case health.HealthStatus.normal:
+        return '✅';
+      case health.HealthStatus.low:
+        return '🔵';
+      case health.HealthStatus.high:
+        return '⚠️';
+      case health.HealthStatus.abnormal:
+        return '🚨';
+    }
   }
 }
