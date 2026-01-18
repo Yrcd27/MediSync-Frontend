@@ -11,6 +11,7 @@ import '../../widgets/feedback/custom_snackbar.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/health_records_provider.dart';
 import '../../models/lipid_profile.dart';
+import '../../utils/health_analysis.dart' as health;
 
 class LipidProfileRecordsScreen extends StatefulWidget {
   const LipidProfileRecordsScreen({super.key});
@@ -317,6 +318,10 @@ class _LipidProfileRecordsScreenState extends State<LipidProfileRecordsScreen> {
   }
 
   Widget _buildRecordCard(LipidProfile record, bool isDark) {
+    final analysis = health.HealthAnalysis.analyzeTotalCholesterol(
+        record.totalCholesterol);
+    final statusIcon = _getStatusIcon(analysis.status);
+    
     return Container(
       margin: EdgeInsets.only(bottom: AppSpacing.md),
       decoration: BoxDecoration(
@@ -377,7 +382,7 @@ class _LipidProfileRecordsScreenState extends State<LipidProfileRecordsScreen> {
           ],
         ),
         subtitle: Text(
-          DateFormat('MMM dd, yyyy').format(DateTime.parse(record.testDate)),
+          '$statusIcon ${analysis.statusText} • ${DateFormat('MMM dd, yyyy').format(DateTime.parse(record.testDate))}',
           style: AppTypography.bodySmall.copyWith(
             color: isDark
                 ? AppColors.darkTextSecondary
@@ -453,5 +458,18 @@ class _LipidProfileRecordsScreenState extends State<LipidProfileRecordsScreen> {
     if (cholesterol < 200) return 'Normal';
     if (cholesterol < 240) return 'Borderline';
     return 'High';
+  }
+
+  String _getStatusIcon(health.HealthStatus status) {
+    switch (status) {
+      case health.HealthStatus.normal:
+        return '✅';
+      case health.HealthStatus.low:
+        return '🔵';
+      case health.HealthStatus.high:
+        return '⚠️';
+      case health.HealthStatus.abnormal:
+        return '🚨';
+    }
   }
 }

@@ -11,6 +11,7 @@ import '../../widgets/feedback/custom_snackbar.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/health_records_provider.dart';
 import '../../models/blood_pressure.dart';
+import '../../utils/health_analysis.dart' as health;
 
 class BloodPressureRecordsScreen extends StatefulWidget {
   const BloodPressureRecordsScreen({super.key});
@@ -277,6 +278,9 @@ class _BloodPressureRecordsScreenState
   }
 
   Widget _buildRecordCard(BloodPressure record, bool isDark) {
+    final analysis = health.HealthAnalysis.analyzeBloodPressure(record);
+    final statusIcon = _getStatusIcon(analysis.status);
+    
     return Container(
       margin: EdgeInsets.only(bottom: AppSpacing.md),
       decoration: BoxDecoration(
@@ -312,13 +316,28 @@ class _BloodPressureRecordsScreenState
             color: isDark ? AppColors.darkTextPrimary : AppColors.textPrimary,
           ),
         ),
-        subtitle: Text(
-          DateFormat('MMM dd, yyyy').format(DateTime.parse(record.testDate)),
-          style: AppTypography.bodySmall.copyWith(
-            color: isDark
-                ? AppColors.darkTextSecondary
-                : AppColors.textSecondary,
-          ),
+        subtitle: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              DateFormat('MMM dd, yyyy').format(DateTime.parse(record.testDate)),
+              style: AppTypography.bodySmall.copyWith(
+                color: isDark
+                    ? AppColors.darkTextSecondary
+                    : AppColors.textSecondary,
+              ),
+            ),
+            SizedBox(height: 4),
+            Text(
+              '$statusIcon ${analysis.statusText}',
+              style: AppTypography.bodySmall.copyWith(
+                color: isDark
+                    ? AppColors.darkTextSecondary
+                    : AppColors.textSecondary,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ],
         ),
         trailing: Container(
           padding: EdgeInsets.symmetric(
@@ -360,5 +379,18 @@ class _BloodPressureRecordsScreenState
     if (systolic < 120 && diastolic < 80) return 'Normal';
     if (systolic < 140 || diastolic < 90) return 'Elevated';
     return 'High';
+  }
+
+  String _getStatusIcon(health.HealthStatus status) {
+    switch (status) {
+      case health.HealthStatus.normal:
+        return '✅';
+      case health.HealthStatus.low:
+        return '🔵';
+      case health.HealthStatus.high:
+        return '⚠️';
+      case health.HealthStatus.abnormal:
+        return '🚨';
+    }
   }
 }

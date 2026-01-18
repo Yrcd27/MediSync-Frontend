@@ -11,6 +11,7 @@ import '../../widgets/feedback/custom_snackbar.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/health_records_provider.dart';
 import '../../models/urine_report.dart';
+import '../../utils/health_analysis.dart' as health;
 
 class UrineReportRecordsScreen extends StatefulWidget {
   const UrineReportRecordsScreen({super.key});
@@ -390,6 +391,10 @@ class _UrineReportRecordsScreenState extends State<UrineReportRecordsScreen> {
   }
 
   Widget _buildRecordCard(UrineReport record, bool isDark) {
+    final analysis = health.HealthAnalysis.analyzeSpecificGravity(
+        record.specificGravity);
+    final statusIcon = _getStatusIcon(analysis.status);
+    
     return Container(
       margin: EdgeInsets.only(bottom: AppSpacing.md),
       decoration: BoxDecoration(
@@ -450,6 +455,16 @@ class _UrineReportRecordsScreenState extends State<UrineReportRecordsScreen> {
           children: [
             SizedBox(height: AppSpacing.xs),
             Text(
+              '$statusIcon ${analysis.statusText}',
+              style: AppTypography.bodySmall.copyWith(
+                color: isDark
+                    ? AppColors.darkTextSecondary
+                    : AppColors.textSecondary,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            SizedBox(height: AppSpacing.xs),
+            Text(
               DateFormat(
                 'MMM dd, yyyy',
               ).format(DateTime.parse(record.testDate)),
@@ -490,6 +505,19 @@ class _UrineReportRecordsScreenState extends State<UrineReportRecordsScreen> {
         return Colors.blue[200]!;
       default:
         return Colors.amber[700]!;
+    }
+  }
+
+  String _getStatusIcon(health.HealthStatus status) {
+    switch (status) {
+      case health.HealthStatus.normal:
+        return '✅';
+      case health.HealthStatus.low:
+        return '🔵';
+      case health.HealthStatus.high:
+        return '⚠️';
+      case health.HealthStatus.abnormal:
+        return '🚨';
     }
   }
 }

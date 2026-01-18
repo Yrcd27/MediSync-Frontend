@@ -11,6 +11,7 @@ import '../../widgets/feedback/custom_snackbar.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/health_records_provider.dart';
 import '../../models/liver_profile.dart';
+import '../../utils/health_analysis.dart' as health;
 
 class LiverProfileRecordsScreen extends StatefulWidget {
   const LiverProfileRecordsScreen({super.key});
@@ -314,6 +315,9 @@ class _LiverProfileRecordsScreenState extends State<LiverProfileRecordsScreen> {
   }
 
   Widget _buildRecordCard(LiverProfile record, bool isDark) {
+    final analysis = health.HealthAnalysis.analyzeSGPT(record.sgpt);
+    final statusIcon = _getStatusIcon(analysis.status);
+    
     return Container(
       margin: EdgeInsets.only(bottom: AppSpacing.md),
       decoration: BoxDecoration(
@@ -370,7 +374,7 @@ class _LiverProfileRecordsScreenState extends State<LiverProfileRecordsScreen> {
           ],
         ),
         subtitle: Text(
-          DateFormat('MMM dd, yyyy').format(DateTime.parse(record.testDate)),
+          '$statusIcon ${analysis.statusText} • ${DateFormat('MMM dd, yyyy').format(DateTime.parse(record.testDate))}',
           style: AppTypography.bodySmall.copyWith(
             color: isDark
                 ? AppColors.darkTextSecondary
@@ -437,5 +441,18 @@ class _LiverProfileRecordsScreenState extends State<LiverProfileRecordsScreen> {
     if (sgpt <= 40) return 'Normal';
     if (sgpt <= 80) return 'Elevated';
     return 'High';
+  }
+
+  String _getStatusIcon(health.HealthStatus status) {
+    switch (status) {
+      case health.HealthStatus.normal:
+        return '✅';
+      case health.HealthStatus.low:
+        return '🔵';
+      case health.HealthStatus.high:
+        return '⚠️';
+      case health.HealthStatus.abnormal:
+        return '🚨';
+    }
   }
 }

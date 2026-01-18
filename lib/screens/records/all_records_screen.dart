@@ -94,7 +94,9 @@ class AllRecordsScreen extends StatelessWidget {
     for (final record in provider.fbcRecords) {
       final testDate = DateTime.tryParse(record.testDate) ?? DateTime.now();
       final analysis = health.HealthAnalysis.analyzeHaemoglobin(
-          record.haemoglobin, user?.gender ?? 'Male');
+        record.haemoglobin,
+        user?.gender ?? 'Male',
+      );
       allRecords.add({
         'type': 'Blood Count',
         'icon': Icons.science_rounded,
@@ -109,8 +111,9 @@ class AllRecordsScreen extends StatelessWidget {
 
     for (final record in provider.lipidRecords) {
       final testDate = DateTime.tryParse(record.testDate) ?? DateTime.now();
-      final analysis =
-          health.HealthAnalysis.analyzeTotalCholesterol(record.totalCholesterol);
+      final analysis = health.HealthAnalysis.analyzeTotalCholesterol(
+        record.totalCholesterol,
+      );
       allRecords.add({
         'type': 'Lipid Profile',
         'icon': Icons.monitor_heart_rounded,
@@ -140,8 +143,9 @@ class AllRecordsScreen extends StatelessWidget {
 
     for (final record in provider.urineRecords) {
       final testDate = DateTime.tryParse(record.testDate) ?? DateTime.now();
-      final analysis =
-          health.HealthAnalysis.analyzeSpecificGravity(record.specificGravity);
+      final analysis = health.HealthAnalysis.analyzeSpecificGravity(
+        record.specificGravity,
+      );
       allRecords.add({
         'type': 'Urine Report',
         'icon': Icons.opacity_rounded,
