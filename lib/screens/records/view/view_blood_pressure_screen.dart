@@ -245,13 +245,63 @@ class ViewBloodPressureScreen extends StatelessWidget {
             height: 200,
             child: LineChart(
               LineChartData(
-                gridData: FlGridData(show: true, drawVerticalLine: false),
+                minY: 50,
+                maxY: 200,
+                gridData: FlGridData(
+                  show: true,
+                  drawVerticalLine: false,
+                  horizontalInterval: 20,
+                  getDrawingHorizontalLine: (value) {
+                    // Highlight reference lines
+                    final isReference = [120, 130, 140].contains(value.toInt());
+                    return FlLine(
+                      color: isReference
+                          ? (value == 120 ? AppColors.success : 
+                             value == 130 ? AppColors.warning : 
+                             AppColors.error).withOpacity(0.6)
+                          : (isDark ? AppColors.darkBorder : AppColors.border)
+                              .withOpacity(0.3),
+                      strokeWidth: isReference ? 2 : 1,
+                      dashArray: isReference ? [5, 5] : null,
+                    );
+                  },
+                ),
                 titlesData: FlTitlesData(
                   leftTitles: AxisTitles(
-                    sideTitles: SideTitles(showTitles: true, reservedSize: 40),
+                    sideTitles: SideTitles(
+                      showTitles: true, 
+                      reservedSize: 45,
+                      interval: 20,
+                      getTitlesWidget: (value, meta) {
+                        return Text(
+                          '${value.toInt()}',
+                          style: AppTypography.caption.copyWith(
+                            color: isDark ? AppColors.darkTextSecondary : AppColors.textSecondary,
+                            fontSize: 10,
+                          ),
+                        );
+                      },
+                    ),
                   ),
                   bottomTitles: AxisTitles(
-                    sideTitles: SideTitles(showTitles: false),
+                    sideTitles: SideTitles(
+                      showTitles: true,
+                      reservedSize: 30,
+                      interval: (chartRecords.length / 4).ceil().toDouble(),
+                      getTitlesWidget: (value, meta) {
+                        final index = value.toInt();
+                        if (index >= 0 && index < chartRecords.length) {
+                          return Text(
+                            DateFormat('MM/dd').format(DateTime.parse(chartRecords[index].testDate)),
+                            style: AppTypography.caption.copyWith(
+                              color: isDark ? AppColors.darkTextSecondary : AppColors.textSecondary,
+                              fontSize: 9,
+                            ),
+                          );
+                        }
+                        return const SizedBox();
+                      },
+                    ),
                   ),
                   topTitles: AxisTitles(
                     sideTitles: SideTitles(showTitles: false),
@@ -261,6 +311,85 @@ class ViewBloodPressureScreen extends StatelessWidget {
                   ),
                 ),
                 borderData: FlBorderData(show: false),
+                lineTouchData: LineTouchData(
+                  enabled: true,
+                  touchTooltipData: LineTouchTooltipData(
+                    tooltipBgColor: isDark ? AppColors.darkSurface : AppColors.surface,
+                    tooltipRoundedRadius: 8,
+                    tooltipPadding: const EdgeInsets.all(8),
+                    tooltipMargin: 8,
+                    getTooltipItems: (touchedSpots) {
+                      return touchedSpots.map((spot) {
+                        final record = chartRecords[spot.x.toInt()];
+                        final isSystemic = spot.barIndex == 0;
+                        final value = isSystemic ? record.systolic : record.diastolic;
+                        final label = isSystemic ? 'Systolic' : 'Diastolic';
+                        final date = DateFormat('MMM dd, yyyy').format(DateTime.parse(record.testDate));
+                        
+                        return LineTooltipItem(
+                          '$label: ${value.toStringAsFixed(0)} mmHg\n$date',
+                          TextStyle(
+                            color: spot.bar.color,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 12,
+                          ),
+                        );
+                      }).toList();
+                    },
+                  ),
+                ),
+                extraLinesData: ExtraLinesData(
+                  horizontalLines: [
+                    HorizontalLine(
+                      y: 120,
+                      color: AppColors.success,
+                      strokeWidth: 1,
+                      dashArray: [5, 5],
+                      label: HorizontalLineLabel(
+                        show: true,
+                        labelResolver: (line) => 'Normal',
+                        style: TextStyle(
+                          color: AppColors.success,
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        alignment: Alignment.topRight,
+                      ),
+                    ),
+                    HorizontalLine(
+                      y: 130,
+                      color: AppColors.warning,
+                      strokeWidth: 1,
+                      dashArray: [5, 5],
+                      label: HorizontalLineLabel(
+                        show: true,
+                        labelResolver: (line) => 'Elevated',
+                        style: TextStyle(
+                          color: AppColors.warning,
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        alignment: Alignment.topRight,
+                      ),
+                    ),
+                    HorizontalLine(
+                      y: 140,
+                      color: AppColors.error,
+                      strokeWidth: 1,
+                      dashArray: [5, 5],
+                      label: HorizontalLineLabel(
+                        show: true,
+                        labelResolver: (line) => 'High',
+                        style: TextStyle(
+                          color: AppColors.error,
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        alignment: Alignment.topRight,
+                      ),
+                    ),
+                  ],
+                ),
                 lineBarsData: [
                   LineChartBarData(
                     spots: chartRecords
@@ -304,6 +433,8 @@ class ViewBloodPressureScreen extends StatelessWidget {
                   ),
                 ],
               ),
+              duration: const Duration(milliseconds: 300),
+              curve: Curves.easeInOut,
             ),
           ),
           const SizedBox(height: AppSpacing.md),
