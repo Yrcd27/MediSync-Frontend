@@ -299,22 +299,6 @@ class ViewBloodCountScreen extends StatelessWidget {
                     },
                   ),
                 ),
-                extraLinesData: ExtraLinesData(
-                  horizontalLines: [
-                    HorizontalLine(
-                      y: 12,
-                      color: AppColors.error,
-                      strokeWidth: 1,
-                      dashArray: [5, 5],
-                    ),
-                    HorizontalLine(
-                      y: 17.5,
-                      color: AppColors.warning,
-                      strokeWidth: 1,
-                      dashArray: [5, 5],
-                    ),
-                  ],
-                ),
                 lineBarsData: [
                   LineChartBarData(
                     spots: chartRecords

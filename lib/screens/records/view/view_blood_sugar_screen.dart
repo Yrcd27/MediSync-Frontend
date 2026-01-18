@@ -343,22 +343,7 @@ class ViewBloodSugarScreen extends StatelessWidget {
                     ),
                   ),
                 ],
-                extraLinesData: ExtraLinesData(
-                  horizontalLines: [
-                    HorizontalLine(
-                      y: 100,
-                      color: AppColors.warning,
-                      strokeWidth: 1,
-                      dashArray: [5, 5],
-                    ),
-                    HorizontalLine(
-                      y: 126,
-                      color: AppColors.error,
-                      strokeWidth: 1,
-                      dashArray: [5, 5],
-                    ),
-                  ],
-                ),
+
               ),
               duration: const Duration(milliseconds: 300),
               curve: Curves.easeInOut,

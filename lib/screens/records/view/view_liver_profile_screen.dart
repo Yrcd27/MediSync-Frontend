@@ -312,31 +312,6 @@ class ViewLiverProfileScreen extends StatelessWidget {
                     },
                   ),
                 ),
-                extraLinesData: ExtraLinesData(
-                  horizontalLines: [
-                    // SGPT Normal Range
-                    HorizontalLine(
-                      y: 56,
-                      color: Colors.orange.withOpacity(0.7),
-                      strokeWidth: 2,
-                      dashArray: [5, 3],
-                    ),
-                    // SGOT Normal Range
-                    HorizontalLine(
-                      y: 40,
-                      color: Colors.purple.withOpacity(0.7),
-                      strokeWidth: 2,
-                      dashArray: [3, 2],
-                    ),
-                    // Normal Zone Indicator
-                    HorizontalLine(
-                      y: 10,
-                      color: Colors.green.withOpacity(0.5),
-                      strokeWidth: 2,
-                      dashArray: [2, 1],
-                    ),
-                  ],
-                ),
                 lineBarsData: [
                   LineChartBarData(
                     spots: chartRecords

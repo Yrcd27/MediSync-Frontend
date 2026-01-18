@@ -343,43 +343,6 @@ class ViewLipidProfileScreen extends StatelessWidget {
                     },
                   ),
                 ),
-                extraLinesData: ExtraLinesData(
-                  horizontalLines: [
-                    // Total Cholesterol References
-                    HorizontalLine(
-                      y: 200,
-                      color: Colors.green.withOpacity(0.7),
-                      strokeWidth: 2,
-                      dashArray: [5, 3],
-                    ),
-                    HorizontalLine(
-                      y: 240,
-                      color: Colors.red.withOpacity(0.7),
-                      strokeWidth: 2,
-                      dashArray: [5, 3],
-                    ),
-                    // LDL References
-                    HorizontalLine(
-                      y: 100,
-                      color: Colors.blue.withOpacity(0.7),
-                      strokeWidth: 2,
-                      dashArray: [3, 2],
-                    ),
-                    HorizontalLine(
-                      y: 160,
-                      color: Colors.orange.withOpacity(0.7),
-                      strokeWidth: 2,
-                      dashArray: [3, 2],
-                    ),
-                    // HDL Reference
-                    HorizontalLine(
-                      y: 60,
-                      color: Colors.purple.withOpacity(0.7),
-                      strokeWidth: 2,
-                      dashArray: [2, 1],
-                    ),
-                  ],
-                ),
                 lineBarsData: [
                   LineChartBarData(
                     spots: chartRecords

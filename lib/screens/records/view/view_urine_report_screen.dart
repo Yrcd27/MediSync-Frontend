@@ -299,30 +299,6 @@ class ViewUrineReportScreen extends StatelessWidget {
                     },
                   ),
                 ),
-                extraLinesData: ExtraLinesData(
-                  horizontalLines: [
-                    // Specific Gravity Normal Range
-                    HorizontalLine(
-                      y: 1.005,
-                      color: Colors.green.withOpacity(0.7),
-                      strokeWidth: 2,
-                      dashArray: [5, 3],
-                    ),
-                    HorizontalLine(
-                      y: 1.030,
-                      color: Colors.orange.withOpacity(0.7),
-                      strokeWidth: 2,
-                      dashArray: [5, 3],
-                    ),
-                    // Optimal Range Indicator
-                    HorizontalLine(
-                      y: 1.020,
-                      color: Colors.blue.withOpacity(0.6),
-                      strokeWidth: 2,
-                      dashArray: [3, 2],
-                    ),
-                  ],
-                ),
                 lineBarsData: [
                   LineChartBarData(
                     spots: chartRecords

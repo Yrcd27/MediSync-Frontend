@@ -353,30 +353,6 @@ class ViewBloodPressureScreen extends StatelessWidget {
                     },
                   ),
                 ),
-                extraLinesData: ExtraLinesData(
-                  horizontalLines: [
-                    HorizontalLine(
-                      y: 120,
-                      color: AppColors.success,
-                      strokeWidth: 1,
-                      dashArray: [5, 5],
-                    ),
-                    HorizontalLine(
-                      y: 130,
-                      color: AppColors.warning,
-                      strokeWidth: 1,
-                      dashArray: [5, 5],
-
-                    ),
-                    HorizontalLine(
-                      y: 140,
-                      color: AppColors.error,
-                      strokeWidth: 1,
-                      dashArray: [5, 5],
-
-                    ),
-                  ],
-                ),
                 lineBarsData: [
                   LineChartBarData(
                     spots: chartRecords
