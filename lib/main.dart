@@ -52,7 +52,10 @@ class _AppWrapperState extends State<AppWrapper> {
   @override
   void initState() {
     super.initState();
-    _initializeApp();
+    // Defer initialization until after the build is complete
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _initializeApp();
+    });
   }
 
   Future<void> _initializeApp() async {

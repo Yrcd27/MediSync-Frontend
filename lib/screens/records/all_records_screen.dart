@@ -318,7 +318,9 @@ class AllRecordsScreen extends StatelessWidget {
     final value = record['rawValue'] as String;
     final unit = record['rawUnit'] as String;
     final testType = record['type'] as String;
-    final testDate = DateFormat('MMMM d, yyyy').format(record['date'] as DateTime);
+    final testDate = DateFormat(
+      'MMMM d, yyyy',
+    ).format(record['date'] as DateTime);
 
     showDialog(
       context: context,
@@ -330,10 +332,7 @@ class AllRecordsScreen extends StatelessWidget {
             borderRadius: AppSpacing.borderRadiusLg,
           ),
           child: Container(
-            constraints: const BoxConstraints(
-              maxWidth: 400,
-              maxHeight: 600,
-            ),
+            constraints: const BoxConstraints(maxWidth: 400, maxHeight: 600),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -411,7 +410,9 @@ class AllRecordsScreen extends StatelessWidget {
                             color: (record['color'] as Color).withOpacity(0.1),
                             borderRadius: AppSpacing.borderRadiusMd,
                             border: Border.all(
-                              color: (record['color'] as Color).withOpacity(0.3),
+                              color: (record['color'] as Color).withOpacity(
+                                0.3,
+                              ),
                               width: 1,
                             ),
                           ),

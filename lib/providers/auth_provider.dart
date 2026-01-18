@@ -19,8 +19,8 @@ class AuthProvider with ChangeNotifier {
 
   /// Check authentication status and restore session
   Future<void> checkAuthStatus() async {
+    // Don't notify during initial loading to avoid build-time state changes
     _isLoading = true;
-    notifyListeners();
 
     try {
       _currentUser = await _authService.restoreSession();
@@ -28,7 +28,10 @@ class AuthProvider with ChangeNotifier {
       _currentUser = null;
     } finally {
       _isLoading = false;
-      notifyListeners();
+      // Only notify after the complete operation to prevent build-time conflicts
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        notifyListeners();
+      });
     }
   }
 
@@ -84,7 +87,10 @@ class AuthProvider with ChangeNotifier {
     notifyListeners();
 
     try {
-      final updatedUser = await _authService.updateUser(user, _currentPassword!);
+      final updatedUser = await _authService.updateUser(
+        user,
+        _currentPassword!,
+      );
       _currentUser = updatedUser;
       _isLoading = false;
       notifyListeners();
