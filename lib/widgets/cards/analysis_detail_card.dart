@@ -64,22 +64,28 @@ class AnalysisDetailCard extends StatelessWidget {
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
-                        Text(
-                          value,
-                          style: AppTypography.headline2.copyWith(
-                            color: analysis.color,
-                            fontWeight: FontWeight.bold,
+                        Flexible(
+                          child: Text(
+                            value,
+                            style: AppTypography.headline2.copyWith(
+                              color: analysis.color,
+                              fontWeight: FontWeight.bold,
+                            ),
+                            overflow: TextOverflow.ellipsis,
                           ),
                         ),
                         const SizedBox(width: AppSpacing.xs),
-                        Padding(
-                          padding: const EdgeInsets.only(bottom: 4),
-                          child: Text(
-                            unit,
-                            style: AppTypography.body2.copyWith(
-                              color: isDark
-                                  ? AppColors.darkTextSecondary
-                                  : AppColors.textSecondary,
+                        Flexible(
+                          child: Padding(
+                            padding: const EdgeInsets.only(bottom: 4),
+                            child: Text(
+                              unit,
+                              style: AppTypography.body2.copyWith(
+                                color: isDark
+                                    ? AppColors.darkTextSecondary
+                                    : AppColors.textSecondary,
+                              ),
+                              overflow: TextOverflow.ellipsis,
                             ),
                           ),
                         ),

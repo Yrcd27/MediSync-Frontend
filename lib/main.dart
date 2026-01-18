@@ -7,6 +7,7 @@ import 'core/theme/app_theme.dart';
 import 'screens/splash_screen.dart';
 import 'screens/auth/login_screen.dart';
 import 'screens/main/main_layout.dart';
+import 'screens/records/all_records_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -31,6 +32,7 @@ class MyApp extends StatelessWidget {
             darkTheme: AppTheme.darkTheme,
             themeMode: themeProvider.themeMode,
             home: const AppWrapper(),
+            routes: {'/all-records': (context) => const AllRecordsScreen()},
             debugShowCheckedModeBanner: false,
           );
         },

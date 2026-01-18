@@ -13,6 +13,13 @@ import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_spacing.dart';
 import '../../core/constants/app_typography.dart';
 import '../../utils/health_analysis.dart' as health;
+import '../../models/blood_pressure.dart';
+import '../../models/fasting_blood_sugar.dart';
+import '../../models/full_blood_count.dart';
+import '../../models/lipid_profile.dart';
+import '../../models/liver_profile.dart';
+import '../../models/urine_report.dart';
+import '../../models/user.dart';
 import 'analytics_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
@@ -181,6 +188,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         unit: healthProvider.bpRecords.isNotEmpty ? 'mmHg' : '',
                         icon: Icons.favorite_rounded,
                         color: AppColors.bloodPressure,
+                        onTap: healthProvider.bpRecords.isNotEmpty
+                            ? () => _showHealthAnalysisModal(
+                                context,
+                                'Blood Pressure Analysis',
+                                healthProvider.bpRecords.last,
+                                'bp',
+                                user,
+                              )
+                            : null,
                       ),
                       HealthMetricCard(
                         title: 'Blood Sugar',
@@ -193,6 +209,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             : '',
                         icon: Icons.water_drop_rounded,
                         color: AppColors.bloodSugar,
+                        onTap: healthProvider.fbsRecords.isNotEmpty
+                            ? () => _showHealthAnalysisModal(
+                                context,
+                                'Blood Sugar Analysis',
+                                healthProvider.fbsRecords.last,
+                                'fbs',
+                                user,
+                              )
+                            : null,
                       ),
                       HealthMetricCard(
                         title: 'Blood Count',
@@ -205,6 +230,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             : '',
                         icon: Icons.science_rounded,
                         color: AppColors.bloodCount,
+                        onTap: healthProvider.fbcRecords.isNotEmpty
+                            ? () => _showHealthAnalysisModal(
+                                context,
+                                'Blood Count Analysis',
+                                healthProvider.fbcRecords.last,
+                                'fbc',
+                                user,
+                              )
+                            : null,
                       ),
                       HealthMetricCard(
                         title: 'Lipid Profile',
@@ -217,6 +251,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             : '',
                         icon: Icons.favorite_rounded,
                         color: AppColors.lipidProfile,
+                        onTap: healthProvider.lipidRecords.isNotEmpty
+                            ? () => _showHealthAnalysisModal(
+                                context,
+                                'Lipid Profile Analysis',
+                                healthProvider.lipidRecords.last,
+                                'lipid',
+                                user,
+                              )
+                            : null,
                       ),
                       HealthMetricCard(
                         title: 'Liver Profile',
@@ -229,6 +272,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             : '',
                         icon: Icons.local_hospital_rounded,
                         color: AppColors.liverProfile,
+                        onTap: healthProvider.liverRecords.isNotEmpty
+                            ? () => _showHealthAnalysisModal(
+                                context,
+                                'Liver Profile Analysis',
+                                healthProvider.liverRecords.last,
+                                'liver',
+                                user,
+                              )
+                            : null,
                       ),
                       HealthMetricCard(
                         title: 'Urine Report',
@@ -241,6 +293,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             : '',
                         icon: Icons.opacity_rounded,
                         color: AppColors.urineReport,
+                        onTap: healthProvider.urineRecords.isNotEmpty
+                            ? () => _showHealthAnalysisModal(
+                                context,
+                                'Urine Report Analysis',
+                                healthProvider.urineRecords.last,
+                                'urine',
+                                user,
+                              )
+                            : null,
                       ),
                     ],
                   ),
@@ -661,5 +722,487 @@ class _DashboardScreenState extends State<DashboardScreen> {
       ];
     }
     return [];
+  }
+
+  void _showHealthAnalysisModal(
+    BuildContext context,
+    String title,
+    dynamic record,
+    String type,
+    User user,
+  ) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (context) => DraggableScrollableSheet(
+        initialChildSize: 0.7,
+        minChildSize: 0.5,
+        maxChildSize: 0.9,
+        builder: (context, scrollController) {
+          final isDark = Theme.of(context).brightness == Brightness.dark;
+
+          return Container(
+            decoration: BoxDecoration(
+              color: isDark ? AppColors.darkSurface : AppColors.surface,
+              borderRadius: const BorderRadius.vertical(
+                top: Radius.circular(20),
+              ),
+            ),
+            child: Column(
+              children: [
+                Container(
+                  margin: const EdgeInsets.only(top: 12),
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: AppColors.textTertiary,
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+                Container(
+                  padding: const EdgeInsets.all(AppSpacing.lg),
+                  decoration: BoxDecoration(
+                    border: Border(
+                      bottom: BorderSide(
+                        color: isDark ? AppColors.darkBorder : AppColors.border,
+                      ),
+                    ),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(
+                        _getIconForType(type),
+                        color: _getColorForType(type),
+                        size: 28,
+                      ),
+                      const SizedBox(width: AppSpacing.md),
+                      Expanded(
+                        child: Text(
+                          title,
+                          style: AppTypography.titleLarge.copyWith(
+                            color: isDark
+                                ? AppColors.darkTextPrimary
+                                : AppColors.textPrimary,
+                          ),
+                        ),
+                      ),
+                      IconButton(
+                        onPressed: () => Navigator.pop(context),
+                        icon: const Icon(Icons.close),
+                      ),
+                    ],
+                  ),
+                ),
+                Expanded(
+                  child: ListView(
+                    controller: scrollController,
+                    padding: const EdgeInsets.all(AppSpacing.lg),
+                    children: [
+                      _buildTestResultsSection(record, type, user, isDark),
+                      const SizedBox(height: AppSpacing.xl),
+                      _buildHealthAnalysisSection(record, type, user, isDark),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildTestResultsSection(
+    dynamic record,
+    String type,
+    User user,
+    bool isDark,
+  ) {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(AppSpacing.lg),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Latest Test Results',
+              style: AppTypography.titleMedium.copyWith(
+                color: isDark
+                    ? AppColors.darkTextPrimary
+                    : AppColors.textPrimary,
+              ),
+            ),
+            const SizedBox(height: AppSpacing.md),
+            Text(
+              'Test Date: ${DateFormat('MMM d, yyyy').format(DateTime.parse(_getTestDate(record, type)))}',
+              style: AppTypography.body2.copyWith(
+                color: isDark
+                    ? AppColors.darkTextSecondary
+                    : AppColors.textSecondary,
+              ),
+            ),
+            const SizedBox(height: AppSpacing.md),
+            ..._buildTestValuesWidgets(record, type, isDark),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildHealthAnalysisSection(
+    dynamic record,
+    String type,
+    User user,
+    bool isDark,
+  ) {
+    final analysisResults = _getHealthAnalysis(record, type, user);
+
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(AppSpacing.lg),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Health Analysis',
+              style: AppTypography.titleMedium.copyWith(
+                color: isDark
+                    ? AppColors.darkTextPrimary
+                    : AppColors.textPrimary,
+              ),
+            ),
+            const SizedBox(height: AppSpacing.md),
+            ...analysisResults.map(
+              (result) => _buildAnalysisCard(result, isDark),
+            ),
+            const SizedBox(height: AppSpacing.lg),
+            Container(
+              padding: const EdgeInsets.all(AppSpacing.md),
+              decoration: BoxDecoration(
+                color: AppColors.info.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
+                border: Border.all(color: AppColors.info.withOpacity(0.3)),
+              ),
+              child: Row(
+                children: [
+                  Icon(Icons.info_outline, color: AppColors.info, size: 20),
+                  const SizedBox(width: AppSpacing.sm),
+                  Expanded(
+                    child: Text(
+                      'This analysis is for informational purposes only. Please consult your healthcare provider for professional medical advice.',
+                      style: AppTypography.caption.copyWith(
+                        color: AppColors.info,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAnalysisCard(health.HealthResult result, bool isDark) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: AppSpacing.md),
+      padding: const EdgeInsets.all(AppSpacing.md),
+      decoration: BoxDecoration(
+        color: result.color.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
+        border: Border.all(color: result.color.withOpacity(0.3)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppSpacing.sm,
+                  vertical: AppSpacing.xs,
+                ),
+                decoration: BoxDecoration(
+                  color: result.color,
+                  borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
+                ),
+                child: Text(
+                  result.statusText,
+                  style: AppTypography.labelSmall.copyWith(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: AppSpacing.sm),
+          Text(
+            result.recommendation,
+            style: AppTypography.body2.copyWith(
+              color: isDark ? AppColors.darkTextPrimary : AppColors.textPrimary,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  IconData _getIconForType(String type) {
+    switch (type) {
+      case 'bp':
+        return Icons.favorite_rounded;
+      case 'fbs':
+        return Icons.water_drop_rounded;
+      case 'fbc':
+        return Icons.science_rounded;
+      case 'lipid':
+        return Icons.favorite_rounded;
+      case 'liver':
+        return Icons.local_hospital_rounded;
+      case 'urine':
+        return Icons.opacity_rounded;
+      default:
+        return Icons.analytics;
+    }
+  }
+
+  Color _getColorForType(String type) {
+    switch (type) {
+      case 'bp':
+        return AppColors.bloodPressure;
+      case 'fbs':
+        return AppColors.bloodSugar;
+      case 'fbc':
+        return AppColors.bloodCount;
+      case 'lipid':
+        return AppColors.lipidProfile;
+      case 'liver':
+        return AppColors.liverProfile;
+      case 'urine':
+        return AppColors.urineReport;
+      default:
+        return AppColors.primary;
+    }
+  }
+
+  String _getTestDate(dynamic record, String type) {
+    switch (type) {
+      case 'bp':
+        return (record as BloodPressure).testDate;
+      case 'fbs':
+        return (record as FastingBloodSugar).testDate;
+      case 'fbc':
+        return (record as FullBloodCount).testDate;
+      case 'lipid':
+        return (record as LipidProfile).testDate;
+      case 'liver':
+        return (record as LiverProfile).testDate;
+      case 'urine':
+        return (record as UrineReport).testDate;
+      default:
+        return DateTime.now().toIso8601String();
+    }
+  }
+
+  List<Widget> _buildTestValuesWidgets(
+    dynamic record,
+    String type,
+    bool isDark,
+  ) {
+    switch (type) {
+      case 'bp':
+        final bp = record as BloodPressure;
+        return [
+          _buildValueRow(
+            'Blood Pressure',
+            '${bp.systolic}/${bp.diastolic}',
+            'mmHg',
+            isDark,
+          ),
+        ];
+      case 'fbs':
+        final fbs = record as FastingBloodSugar;
+        return [
+          _buildValueRow(
+            'Fasting Blood Sugar',
+            fbs.fbsLevel.toStringAsFixed(1),
+            'mg/dL',
+            isDark,
+          ),
+        ];
+      case 'fbc':
+        final fbc = record as FullBloodCount;
+        return [
+          _buildValueRow(
+            'Hemoglobin',
+            fbc.haemoglobin.toStringAsFixed(1),
+            'g/dL',
+            isDark,
+          ),
+          _buildValueRow(
+            'White Blood Cells',
+            fbc.totalLeucocyteCount.toStringAsFixed(0),
+            'cells/mcL',
+            isDark,
+          ),
+          _buildValueRow(
+            'Platelets',
+            fbc.plateletCount.toStringAsFixed(0),
+            'cells/mcL',
+            isDark,
+          ),
+        ];
+      case 'lipid':
+        final lipid = record as LipidProfile;
+        return [
+          _buildValueRow(
+            'Total Cholesterol',
+            lipid.totalCholesterol.toStringAsFixed(0),
+            'mg/dL',
+            isDark,
+          ),
+          _buildValueRow(
+            'HDL Cholesterol',
+            lipid.hdl.toStringAsFixed(0),
+            'mg/dL',
+            isDark,
+          ),
+          _buildValueRow(
+            'LDL Cholesterol',
+            lipid.ldl.toStringAsFixed(0),
+            'mg/dL',
+            isDark,
+          ),
+          _buildValueRow(
+            'Triglycerides',
+            lipid.triglycerides.toStringAsFixed(0),
+            'mg/dL',
+            isDark,
+          ),
+        ];
+      case 'liver':
+        final liver = record as LiverProfile;
+        return [
+          _buildValueRow(
+            'Total Protein',
+            liver.proteinTotalSerum.toStringAsFixed(1),
+            'g/dL',
+            isDark,
+          ),
+          _buildValueRow(
+            'Albumin',
+            liver.albuminSerum.toStringAsFixed(1),
+            'g/dL',
+            isDark,
+          ),
+          _buildValueRow(
+            'Bilirubin',
+            liver.bilirubinTotalSerum.toStringAsFixed(1),
+            'mg/dL',
+            isDark,
+          ),
+          _buildValueRow(
+            'SGPT/ALT',
+            liver.sgpt.toStringAsFixed(0),
+            'U/L',
+            isDark,
+          ),
+        ];
+      case 'urine':
+        final urine = record as UrineReport;
+        return [
+          _buildValueRow(
+            'Specific Gravity',
+            urine.specificGravity.toStringAsFixed(3),
+            '',
+            isDark,
+          ),
+          _buildValueRow('Protein', urine.protein, '', isDark),
+          _buildValueRow('Sugar', urine.sugar, '', isDark),
+        ];
+      default:
+        return [];
+    }
+  }
+
+  Widget _buildValueRow(String label, String value, String unit, bool isDark) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: AppSpacing.sm),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            label,
+            style: AppTypography.body2.copyWith(
+              color: isDark
+                  ? AppColors.darkTextSecondary
+                  : AppColors.textSecondary,
+            ),
+          ),
+          Text(
+            '$value $unit',
+            style: AppTypography.body2.copyWith(
+              color: isDark ? AppColors.darkTextPrimary : AppColors.textPrimary,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  List<health.HealthResult> _getHealthAnalysis(
+    dynamic record,
+    String type,
+    User user,
+  ) {
+    switch (type) {
+      case 'bp':
+        final bp = record as BloodPressure;
+        return [
+          health.HealthAnalysis.analyzeSystolic(bp.systolic),
+          health.HealthAnalysis.analyzeDiastolic(bp.diastolic),
+        ];
+      case 'fbs':
+        final fbs = record as FastingBloodSugar;
+        return [health.HealthAnalysis.analyzeFBS(fbs.fbsLevel)];
+      case 'fbc':
+        final fbc = record as FullBloodCount;
+        return [
+          health.HealthAnalysis.analyzeHaemoglobin(
+            fbc.haemoglobin,
+            user.gender,
+          ),
+          health.HealthAnalysis.analyzeWBC(fbc.totalLeucocyteCount),
+          health.HealthAnalysis.analyzePlatelets(fbc.plateletCount),
+        ];
+      case 'lipid':
+        final lipid = record as LipidProfile;
+        return [
+          health.HealthAnalysis.analyzeTotalCholesterol(lipid.totalCholesterol),
+          health.HealthAnalysis.analyzeHDL(lipid.hdl, user.gender),
+          health.HealthAnalysis.analyzeLDL(lipid.ldl),
+          health.HealthAnalysis.analyzeTriglycerides(lipid.triglycerides),
+        ];
+      case 'liver':
+        final liver = record as LiverProfile;
+        return [
+          health.HealthAnalysis.analyzeSGPT(liver.sgpt),
+          health.HealthAnalysis.analyzeAlbumin(liver.albuminSerum),
+          health.HealthAnalysis.analyzeBilirubin(liver.bilirubinTotalSerum),
+        ];
+      case 'urine':
+        final urine = record as UrineReport;
+        return [
+          health.HealthAnalysis.analyzeSpecificGravity(urine.specificGravity),
+          health.HealthAnalysis.analyzeUrineProtein(urine.protein),
+          health.HealthAnalysis.analyzeUrineSugar(urine.sugar),
+        ];
+      default:
+        return [];
+    }
   }
 }
