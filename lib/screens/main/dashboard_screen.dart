@@ -298,9 +298,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     ...healthProvider.dailyReports.take(3).map((report) {
                       final testCount = (report['tests'] as List).length;
                       final date = report['date'] as String;
-                      final parsedDate = DateTime.tryParse(date) ?? DateTime.now();
-                      final formattedDate = DateFormat('MMM d, yyyy').format(parsedDate);
-                      
+                      final parsedDate =
+                          DateTime.tryParse(date) ?? DateTime.now();
+                      final formattedDate = DateFormat(
+                        'MMM d, yyyy',
+                      ).format(parsedDate);
+
                       return Card(
                         margin: const EdgeInsets.only(bottom: AppSpacing.sm),
                         child: ListTile(
@@ -447,10 +450,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       margin: const EdgeInsets.only(bottom: AppSpacing.sm),
                       padding: const EdgeInsets.all(AppSpacing.md),
                       decoration: BoxDecoration(
-                        color: (test['color'] as Color).withOpacity(0.1),
+                        color: AppColors.primary.withOpacity(0.1),
                         borderRadius: AppSpacing.borderRadiusMd,
                         border: Border.all(
-                          color: (test['color'] as Color).withOpacity(0.3),
+                          color: AppColors.primary.withOpacity(0.3),
                           width: 1,
                         ),
                       ),
@@ -460,12 +463,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             width: 48,
                             height: 48,
                             decoration: BoxDecoration(
-                              color: (test['color'] as Color).withOpacity(0.2),
+                              color: AppColors.primary.withOpacity(0.2),
                               borderRadius: AppSpacing.borderRadiusSm,
                             ),
                             child: Icon(
                               test['icon'] as IconData,
-                              color: test['color'] as Color,
+                              color: AppColors.primary,
                               size: 24,
                             ),
                           ),
