@@ -28,10 +28,7 @@ class AnalysisDetailCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: analysis.color.withOpacity(0.05),
         borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
-        border: Border.all(
-          color: analysis.color.withOpacity(0.3),
-          width: 2,
-        ),
+        border: Border.all(color: analysis.color.withOpacity(0.3), width: 2),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

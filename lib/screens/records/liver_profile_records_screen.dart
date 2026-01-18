@@ -317,7 +317,7 @@ class _LiverProfileRecordsScreenState extends State<LiverProfileRecordsScreen> {
   Widget _buildRecordCard(LiverProfile record, bool isDark) {
     final analysis = health.HealthAnalysis.analyzeSGPT(record.sgpt);
     final statusIcon = _getStatusIcon(analysis.status);
-    
+
     return Container(
       margin: EdgeInsets.only(bottom: AppSpacing.md),
       decoration: BoxDecoration(

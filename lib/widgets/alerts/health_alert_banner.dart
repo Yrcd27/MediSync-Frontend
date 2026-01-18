@@ -30,10 +30,7 @@ class HealthAlertBanner extends StatelessWidget {
       decoration: BoxDecoration(
         color: color.withOpacity(0.1),
         borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
-        border: Border.all(
-          color: color.withOpacity(0.3),
-          width: 1,
-        ),
+        border: Border.all(color: color.withOpacity(0.3), width: 1),
       ),
       child: Material(
         color: Colors.transparent,
@@ -50,11 +47,7 @@ class HealthAlertBanner extends StatelessWidget {
                     color: color.withOpacity(0.2),
                     borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
                   ),
-                  child: Icon(
-                    icon,
-                    color: color,
-                    size: AppSpacing.iconMd,
-                  ),
+                  child: Icon(icon, color: color, size: AppSpacing.iconMd),
                 ),
                 const SizedBox(width: AppSpacing.md),
                 Expanded(

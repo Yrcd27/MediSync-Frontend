@@ -319,9 +319,10 @@ class _LipidProfileRecordsScreenState extends State<LipidProfileRecordsScreen> {
 
   Widget _buildRecordCard(LipidProfile record, bool isDark) {
     final analysis = health.HealthAnalysis.analyzeTotalCholesterol(
-        record.totalCholesterol);
+      record.totalCholesterol,
+    );
     final statusIcon = _getStatusIcon(analysis.status);
-    
+
     return Container(
       margin: EdgeInsets.only(bottom: AppSpacing.md),
       decoration: BoxDecoration(

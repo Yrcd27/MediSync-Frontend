@@ -222,10 +222,12 @@ class ViewBloodPressureScreen extends StatelessWidget {
 
   Widget _buildAnalysisCards(BloodPressure record, bool isDark) {
     final bpAnalysis = health.HealthAnalysis.analyzeBloodPressure(record);
-    final systolicAnalysis =
-        health.HealthAnalysis.analyzeSystolic(record.systolic);
-    final diastolicAnalysis =
-        health.HealthAnalysis.analyzeDiastolic(record.diastolic);
+    final systolicAnalysis = health.HealthAnalysis.analyzeSystolic(
+      record.systolic,
+    );
+    final diastolicAnalysis = health.HealthAnalysis.analyzeDiastolic(
+      record.diastolic,
+    );
 
     return Column(
       children: [

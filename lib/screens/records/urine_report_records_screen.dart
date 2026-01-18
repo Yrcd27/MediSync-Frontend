@@ -392,9 +392,10 @@ class _UrineReportRecordsScreenState extends State<UrineReportRecordsScreen> {
 
   Widget _buildRecordCard(UrineReport record, bool isDark) {
     final analysis = health.HealthAnalysis.analyzeSpecificGravity(
-        record.specificGravity);
+      record.specificGravity,
+    );
     final statusIcon = _getStatusIcon(analysis.status);
-    
+
     return Container(
       margin: EdgeInsets.only(bottom: AppSpacing.md),
       decoration: BoxDecoration(

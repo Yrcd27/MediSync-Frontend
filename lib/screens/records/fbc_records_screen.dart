@@ -295,9 +295,11 @@ class _FbcRecordsScreenState extends State<FbcRecordsScreen> {
   Widget _buildRecordCard(FullBloodCount record, bool isDark) {
     final user = context.read<AuthProvider>().currentUser;
     final analysis = health.HealthAnalysis.analyzeHaemoglobin(
-        record.haemoglobin, user?.gender ?? 'Male');
+      record.haemoglobin,
+      user?.gender ?? 'Male',
+    );
     final statusIcon = _getStatusIcon(analysis.status);
-    
+
     return Container(
       margin: EdgeInsets.only(bottom: AppSpacing.md),
       decoration: BoxDecoration(

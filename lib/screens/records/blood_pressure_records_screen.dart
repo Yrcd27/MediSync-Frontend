@@ -280,7 +280,7 @@ class _BloodPressureRecordsScreenState
   Widget _buildRecordCard(BloodPressure record, bool isDark) {
     final analysis = health.HealthAnalysis.analyzeBloodPressure(record);
     final statusIcon = _getStatusIcon(analysis.status);
-    
+
     return Container(
       margin: EdgeInsets.only(bottom: AppSpacing.md),
       decoration: BoxDecoration(
@@ -320,7 +320,9 @@ class _BloodPressureRecordsScreenState
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              DateFormat('MMM dd, yyyy').format(DateTime.parse(record.testDate)),
+              DateFormat(
+                'MMM dd, yyyy',
+              ).format(DateTime.parse(record.testDate)),
               style: AppTypography.bodySmall.copyWith(
                 color: isDark
                     ? AppColors.darkTextSecondary

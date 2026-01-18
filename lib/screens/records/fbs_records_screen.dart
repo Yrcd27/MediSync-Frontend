@@ -304,7 +304,7 @@ class _FbsRecordsScreenState extends State<FbsRecordsScreen> {
   Widget _buildCompactRecordCard(FastingBloodSugar record) {
     final analysis = health.HealthAnalysis.analyzeFBS(record.fbsLevel);
     final statusIcon = _getStatusIcon(analysis.status);
-    
+
     return Card(
       margin: const EdgeInsets.only(bottom: 4),
       child: ListTile(
