@@ -186,37 +186,172 @@ class ViewUrineReportScreen extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Specific Gravity Trend', style: AppTypography.title3),
+          Text('Urine Analysis Trends', style: AppTypography.title3),
           const SizedBox(height: AppSpacing.lg),
           SizedBox(
-            height: 200,
+            height: 220,
             child: LineChart(
               LineChartData(
-                gridData: FlGridData(show: true, drawVerticalLine: false),
+                gridData: FlGridData(
+                  show: true, 
+                  drawVerticalLine: false,
+                  getDrawingHorizontalLine: (value) {
+                    return FlLine(
+                      color: Colors.grey.withOpacity(0.3),
+                      strokeWidth: 1,
+                    );
+                  },
+                ),
                 titlesData: FlTitlesData(
                   leftTitles: AxisTitles(
                     sideTitles: SideTitles(
                       showTitles: true,
                       reservedSize: 50,
-                      getTitlesWidget: (value, meta) => Text(
-                        value.toStringAsFixed(3),
-                        style: AppTypography.caption,
-                      ),
+                      interval: 0.005,
+                      getTitlesWidget: (value, meta) {
+                        return Text(
+                          value.toStringAsFixed(3),
+                          style: AppTypography.caption.copyWith(fontSize: 10),
+                        );
+                      },
                     ),
                   ),
                   bottomTitles: AxisTitles(
-                    sideTitles: SideTitles(showTitles: false),
+                    sideTitles: SideTitles(
+                      showTitles: true,
+                      reservedSize: 30,
+                      getTitlesWidget: (value, meta) {
+                        final index = value.toInt();
+                        if (index >= 0 && index < chartRecords.length) {
+                          return Text(
+                            DateFormat('MM/dd').format(chartRecords[index].testDate),
+                            style: AppTypography.caption.copyWith(fontSize: 10),
+                          );
+                        }
+                        return const Text('');
+                      },
+                    ),
                   ),
                   topTitles: AxisTitles(
                     sideTitles: SideTitles(showTitles: false),
                   ),
                   rightTitles: AxisTitles(
-                    sideTitles: SideTitles(showTitles: false),
+                    sideTitles: SideTitles(
+                      showTitles: true,
+                      reservedSize: 35,
+                      interval: 2,
+                      getTitlesWidget: (value, meta) {
+                        return Text(
+                          '${value.toInt()}',
+                          style: AppTypography.caption.copyWith(fontSize: 10),
+                        );
+                      },
+                    ),
                   ),
                 ),
                 borderData: FlBorderData(show: false),
+                minX: 0,
+                maxX: (chartRecords.length - 1).toDouble(),
                 minY: 1.000,
                 maxY: 1.040,
+                lineTouchData: LineTouchData(
+                  enabled: true,
+                  touchTooltipData: LineTouchTooltipData(
+                    tooltipBgColor: isDark ? AppColors.darkSurface : AppColors.surface,
+                    tooltipBorder: BorderSide(
+                      color: isDark ? AppColors.darkBorder : AppColors.border,
+                    ),
+                    getTooltipItems: (List<LineBarSpot> touchedSpots) {
+                      return touchedSpots.map((spot) {
+                        final record = chartRecords[spot.x.toInt()];
+                        final date = DateFormat('MMM dd, yyyy').format(record.testDate);
+                        
+                        String label = '';
+                        String status = '';
+                        Color lineColor = AppColors.primary;
+                        
+                        if (spot.barIndex == 0) {
+                          label = 'Specific Gravity: ${record.specificGravity.toStringAsFixed(3)}';
+                          status = (record.specificGravity >= 1.005 && record.specificGravity <= 1.030) 
+                              ? 'Normal Range' 
+                              : record.specificGravity < 1.005 
+                                  ? 'Dilute' 
+                                  : 'Concentrated';
+                          lineColor = AppColors.urineReport;
+                        } else {
+                          // This would be pH if we add it as a second line
+                          label = 'pH: ${record.ph.toStringAsFixed(1)}';
+                          status = (record.ph >= 4.6 && record.ph <= 8.0) ? 'Normal pH' : 
+                                  record.ph < 4.6 ? 'Acidic' : 'Alkaline';
+                          lineColor = AppColors.secondary;
+                        }
+                        
+                        return LineTooltipItem(
+                          '$label\n$status\n$date',
+                          TextStyle(
+                            color: lineColor,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 12,
+                          ),
+                        );
+                      }).toList();
+                    },
+                  ),
+                ),
+                extraLinesData: ExtraLinesData(
+                  horizontalLines: [
+                    // Specific Gravity Normal Range
+                    HorizontalLine(
+                      y: 1.005,
+                      color: Colors.green.withOpacity(0.7),
+                      strokeWidth: 2,
+                      dashArray: [5, 3],
+                      label: HorizontalLineLabel(
+                        show: true,
+                        labelResolver: (line) => 'Normal Min (1.005)',
+                        style: TextStyle(
+                          color: Colors.green,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 9,
+                        ),
+                        alignment: Alignment.bottomLeft,
+                      ),
+                    ),
+                    HorizontalLine(
+                      y: 1.030,
+                      color: Colors.orange.withOpacity(0.7),
+                      strokeWidth: 2,
+                      dashArray: [5, 3],
+                      label: HorizontalLineLabel(
+                        show: true,
+                        labelResolver: (line) => 'Normal Max (1.030)',
+                        style: TextStyle(
+                          color: Colors.orange,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 9,
+                        ),
+                        alignment: Alignment.topLeft,
+                      ),
+                    ),
+                    // Optimal Range Indicator
+                    HorizontalLine(
+                      y: 1.020,
+                      color: Colors.blue.withOpacity(0.6),
+                      strokeWidth: 2,
+                      dashArray: [3, 2],
+                      label: HorizontalLineLabel(
+                        show: true,
+                        labelResolver: (line) => 'Optimal (1.020)',
+                        style: TextStyle(
+                          color: Colors.blue,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 9,
+                        ),
+                        alignment: Alignment.centerRight,
+                      ),
+                    ),
+                  ],
+                ),
                 lineBarsData: [
                   LineChartBarData(
                     spots: chartRecords
@@ -230,7 +365,17 @@ class ViewUrineReportScreen extends StatelessWidget {
                     isCurved: true,
                     color: AppColors.urineReport,
                     barWidth: 3,
-                    dotData: FlDotData(show: true),
+                    dotData: FlDotData(
+                      show: true,
+                      getDotPainter: (spot, percent, barData, index) {
+                        return FlDotCirclePainter(
+                          radius: 4,
+                          color: AppColors.urineReport,
+                          strokeWidth: 2,
+                          strokeColor: Colors.white,
+                        );
+                      },
+                    ),
                     belowBarData: BarAreaData(
                       show: true,
                       color: AppColors.urineReport.withOpacity(0.1),
@@ -238,10 +383,41 @@ class ViewUrineReportScreen extends StatelessWidget {
                   ),
                 ],
               ),
+              duration: const Duration(milliseconds: 300),
+              curve: Curves.easeInOut,
             ),
+          ),
+          const SizedBox(height: AppSpacing.md),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              _buildLegendItem('Specific Gravity', AppColors.urineReport),
+              const SizedBox(width: AppSpacing.lg),
+              Text(
+                'Normal Range: 1.005 - 1.030',
+                style: AppTypography.caption.copyWith(
+                  color: Colors.green,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ],
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildLegendItem(String label, Color color) {
+    return Row(
+      children: [
+        Container(
+          width: 12,
+          height: 12,
+          decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+        ),
+        const SizedBox(width: AppSpacing.xs),
+        Text(label, style: AppTypography.caption),
+      ],
     );
   }
 
