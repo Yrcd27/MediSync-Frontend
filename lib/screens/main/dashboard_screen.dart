@@ -11,7 +11,6 @@ import '../../widgets/modals/record_type_selector.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_spacing.dart';
 import '../../core/constants/app_typography.dart';
-import '../../utils/health_analysis.dart';
 import 'analytics_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
@@ -161,7 +160,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   const SectionHeader(title: 'Health Summary'),
                   const SizedBox(height: AppSpacing.md),
 
-                  // Health summary cards - using correct model fields
+                  // Health summary cards - showing all 6 test types
                   GridView.count(
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
@@ -178,12 +177,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                               )[0]
                             : '--',
                         unit: healthProvider.bpRecords.isNotEmpty ? 'mmHg' : '',
-                        icon: Icons.favorite,
-                        color: healthProvider.bpRecords.isNotEmpty
-                            ? HealthAnalysis.analyzeBloodPressure(
-                                healthProvider.bpRecords.last,
-                              ).color
-                            : AppColors.bloodPressure,
+                        icon: Icons.favorite_rounded,
+                        color: AppColors.bloodPressure,
                         subtitle: healthProvider.bpRecords.isNotEmpty
                             ? '${healthProvider.bpRecords.length} records'
                             : 'No data',
@@ -194,53 +189,63 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             ? healthProvider.fbsRecords.last.fbsLevel
                                   .toStringAsFixed(0)
                             : '--',
-                        unit: 'mg/dL',
-                        icon: Icons.bloodtype,
-                        color: healthProvider.fbsRecords.isNotEmpty
-                            ? HealthAnalysis.analyzeFBS(
-                                healthProvider.fbsRecords.last.fbsLevel,
-                              ).color
-                            : AppColors.bloodSugar,
+                        unit: healthProvider.fbsRecords.isNotEmpty ? 'mg/dL' : '',
+                        icon: Icons.water_drop_rounded,
+                        color: AppColors.bloodSugar,
                         subtitle: healthProvider.fbsRecords.isNotEmpty
                             ? '${healthProvider.fbsRecords.length} records'
                             : 'No data',
                       ),
                       HealthMetricCard(
-                        title: 'Haemoglobin',
+                        title: 'Blood Count',
                         value: healthProvider.fbcRecords.isNotEmpty
                             ? healthProvider.fbcRecords.last.haemoglobin
                                   .toStringAsFixed(1)
                             : '--',
-                        unit: 'g/dL',
-                        icon: Icons.science,
-                        color: healthProvider.fbcRecords.isNotEmpty
-                            ? HealthAnalysis.analyzeHaemoglobin(
-                                healthProvider.fbcRecords.last.haemoglobin,
-                                user.gender,
-                              ).color
-                            : AppColors.bloodCount,
+                        unit: healthProvider.fbcRecords.isNotEmpty ? 'g/dL' : '',
+                        icon: Icons.science_rounded,
+                        color: AppColors.bloodCount,
                         subtitle: healthProvider.fbcRecords.isNotEmpty
-                            ? '${healthProvider.fbcRecords.length} FBC records'
+                            ? '${healthProvider.fbcRecords.length} records'
                             : 'No data',
                       ),
                       HealthMetricCard(
-                        title: 'Cholesterol',
+                        title: 'Lipid Profile',
                         value: healthProvider.lipidRecords.isNotEmpty
                             ? healthProvider.lipidRecords.last.totalCholesterol
                                   .toStringAsFixed(0)
                             : '--',
-                        unit: 'mg/dL',
-                        icon: Icons.monitor_heart,
-                        color: healthProvider.lipidRecords.isNotEmpty
-                            ? HealthAnalysis.analyzeTotalCholesterol(
-                                healthProvider
-                                    .lipidRecords
-                                    .last
-                                    .totalCholesterol,
-                              ).color
-                            : AppColors.lipidProfile,
+                        unit: healthProvider.lipidRecords.isNotEmpty ? 'mg/dL' : '',
+                        icon: Icons.monitor_heart_rounded,
+                        color: AppColors.lipidProfile,
                         subtitle: healthProvider.lipidRecords.isNotEmpty
                             ? '${healthProvider.lipidRecords.length} records'
+                            : 'No data',
+                      ),
+                      HealthMetricCard(
+                        title: 'Liver Profile',
+                        value: healthProvider.liverRecords.isNotEmpty
+                            ? healthProvider.liverRecords.last.sgpt
+                                  .toStringAsFixed(0)
+                            : '--',
+                        unit: healthProvider.liverRecords.isNotEmpty ? 'U/L' : '',
+                        icon: Icons.local_hospital_rounded,
+                        color: AppColors.liverProfile,
+                        subtitle: healthProvider.liverRecords.isNotEmpty
+                            ? '${healthProvider.liverRecords.length} records'
+                            : 'No data',
+                      ),
+                      HealthMetricCard(
+                        title: 'Urine Report',
+                        value: healthProvider.urineRecords.isNotEmpty
+                            ? healthProvider.urineRecords.last.specificGravity
+                                  .toStringAsFixed(3)
+                            : '--',
+                        unit: healthProvider.urineRecords.isNotEmpty ? 'SG' : '',
+                        icon: Icons.opacity_rounded,
+                        color: AppColors.urineReport,
+                        subtitle: healthProvider.urineRecords.isNotEmpty
+                            ? '${healthProvider.urineRecords.length} records'
                             : 'No data',
                       ),
                     ],
