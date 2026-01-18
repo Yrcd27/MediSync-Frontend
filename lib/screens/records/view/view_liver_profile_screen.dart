@@ -215,19 +215,51 @@ class ViewLiverProfileScreen extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('SGPT Trend', style: AppTypography.title3),
+          Text('Liver Enzyme Trends', style: AppTypography.title3),
           const SizedBox(height: AppSpacing.lg),
           SizedBox(
-            height: 200,
+            height: 220,
             child: LineChart(
               LineChartData(
-                gridData: FlGridData(show: true, drawVerticalLine: false),
+                gridData: FlGridData(
+                  show: true, 
+                  drawVerticalLine: false,
+                  getDrawingHorizontalLine: (value) {
+                    return FlLine(
+                      color: Colors.grey.withOpacity(0.3),
+                      strokeWidth: 1,
+                    );
+                  },
+                ),
                 titlesData: FlTitlesData(
                   leftTitles: AxisTitles(
-                    sideTitles: SideTitles(showTitles: true, reservedSize: 40),
+                    sideTitles: SideTitles(
+                      showTitles: true,
+                      reservedSize: 45,
+                      interval: 20,
+                      getTitlesWidget: (value, meta) {
+                        return Text(
+                          '${value.toInt()}',
+                          style: AppTypography.caption.copyWith(fontSize: 11),
+                        );
+                      },
+                    ),
                   ),
                   bottomTitles: AxisTitles(
-                    sideTitles: SideTitles(showTitles: false),
+                    sideTitles: SideTitles(
+                      showTitles: true,
+                      reservedSize: 30,
+                      getTitlesWidget: (value, meta) {
+                        final index = value.toInt();
+                        if (index >= 0 && index < chartRecords.length) {
+                          return Text(
+                            DateFormat('MM/dd').format(chartRecords[index].testDate),
+                            style: AppTypography.caption.copyWith(fontSize: 10),
+                          );
+                        }
+                        return const Text('');
+                      },
+                    ),
                   ),
                   topTitles: AxisTitles(
                     sideTitles: SideTitles(showTitles: false),
@@ -237,6 +269,103 @@ class ViewLiverProfileScreen extends StatelessWidget {
                   ),
                 ),
                 borderData: FlBorderData(show: false),
+                minX: 0,
+                maxX: (chartRecords.length - 1).toDouble(),
+                minY: 0,
+                maxY: 120,
+                lineTouchData: LineTouchData(
+                  enabled: true,
+                  touchTooltipData: LineTouchTooltipData(
+                    tooltipBgColor: isDark ? AppColors.darkSurface : AppColors.surface,
+                    tooltipBorder: BorderSide(
+                      color: isDark ? AppColors.darkBorder : AppColors.border,
+                    ),
+                    getTooltipItems: (List<LineBarSpot> touchedSpots) {
+                      return touchedSpots.map((spot) {
+                        final record = chartRecords[spot.x.toInt()];
+                        final date = DateFormat('MMM dd, yyyy').format(record.testDate);
+                        
+                        String label = '';
+                        String status = '';
+                        Color lineColor = AppColors.primary;
+                        
+                        if (spot.barIndex == 0) {
+                          label = 'SGPT (ALT): ${record.sgpt.toStringAsFixed(0)} U/L';
+                          status = record.sgpt <= 56 ? 'Normal' : 'Elevated';
+                          lineColor = AppColors.liverProfile;
+                        } else {
+                          label = 'SGOT (AST): ${record.sgot.toStringAsFixed(0)} U/L';
+                          status = record.sgot <= 40 ? 'Normal' : 'Elevated';
+                          lineColor = AppColors.warning;
+                        }
+                        
+                        return LineTooltipItem(
+                          '$label\n$status\n$date',
+                          TextStyle(
+                            color: lineColor,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 12,
+                          ),
+                        );
+                      }).toList();
+                    },
+                  ),
+                ),
+                extraLinesData: ExtraLinesData(
+                  horizontalLines: [
+                    // SGPT Normal Range
+                    HorizontalLine(
+                      y: 56,
+                      color: Colors.orange.withOpacity(0.7),
+                      strokeWidth: 2,
+                      dashArray: [5, 3],
+                      label: HorizontalLineLabel(
+                        show: true,
+                        labelResolver: (line) => 'SGPT Normal Limit (56 U/L)',
+                        style: TextStyle(
+                          color: Colors.orange,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 10,
+                        ),
+                        alignment: Alignment.topRight,
+                      ),
+                    ),
+                    // SGOT Normal Range
+                    HorizontalLine(
+                      y: 40,
+                      color: Colors.purple.withOpacity(0.7),
+                      strokeWidth: 2,
+                      dashArray: [3, 2],
+                      label: HorizontalLineLabel(
+                        show: true,
+                        labelResolver: (line) => 'SGOT Normal Limit (40 U/L)',
+                        style: TextStyle(
+                          color: Colors.purple,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 10,
+                        ),
+                        alignment: Alignment.centerRight,
+                      ),
+                    ),
+                    // Normal Zone Indicator
+                    HorizontalLine(
+                      y: 10,
+                      color: Colors.green.withOpacity(0.5),
+                      strokeWidth: 2,
+                      dashArray: [2, 1],
+                      label: HorizontalLineLabel(
+                        show: true,
+                        labelResolver: (line) => 'Normal Zone',
+                        style: TextStyle(
+                          color: Colors.green,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 10,
+                        ),
+                        alignment: Alignment.bottomLeft,
+                      ),
+                    ),
+                  ],
+                ),
                 lineBarsData: [
                   LineChartBarData(
                     spots: chartRecords
@@ -247,7 +376,54 @@ class ViewLiverProfileScreen extends StatelessWidget {
                     isCurved: true,
                     color: AppColors.liverProfile,
                     barWidth: 3,
-                    dotData: FlDotData(show: true),
+                    dotData: FlDotData(
+                      show: true,
+                      getDotPainter: (spot, percent, barData, index) {
+                        return FlDotCirclePainter(
+                          radius: 4,
+                          color: AppColors.liverProfile,
+                          strokeWidth: 2,
+                          strokeColor: Colors.white,
+                        );
+                      },
+                    ),
+                  ),
+                  LineChartBarData(
+                    spots: chartRecords
+                        .asMap()
+                        .entries
+                        .map((e) => FlSpot(e.key.toDouble(), e.value.sgot))
+                        .toList(),
+                    isCurved: true,
+                    color: AppColors.warning,
+                    barWidth: 2.5,
+                    dotData: FlDotData(
+                      show: true,
+                      getDotPainter: (spot, percent, barData, index) {
+                        return FlDotCirclePainter(
+                          radius: 3.5,
+                          color: AppColors.warning,
+                          strokeWidth: 1.5,
+                          strokeColor: Colors.white,
+                        );
+                      },
+                    ),
+                  ),
+                ],
+              ),
+              duration: const Duration(milliseconds: 350),
+              curve: Curves.easeInOut,
+            ),
+          ),
+          const SizedBox(height: AppSpacing.md),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              _buildLegendItem('SGPT (ALT)', AppColors.liverProfile),
+              const SizedBox(width: AppSpacing.lg),
+              _buildLegendItem('SGOT (AST)', AppColors.warning),
+            ],
+          ),
                     belowBarData: BarAreaData(
                       show: true,
                       color: AppColors.liverProfile.withOpacity(0.1),
@@ -275,6 +451,20 @@ class ViewLiverProfileScreen extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildLegendItem(String label, Color color) {
+    return Row(
+      children: [
+        Container(
+          width: 12,
+          height: 12,
+          decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+        ),
+        const SizedBox(width: AppSpacing.xs),
+        Text(label, style: AppTypography.caption),
+      ],
     );
   }
 
