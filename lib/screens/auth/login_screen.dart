@@ -69,13 +69,8 @@ class _LoginScreenState extends State<LoginScreen> {
         // Load fresh health records for the new user in background
         final currentUser = context.read<AuthProvider>().currentUser;
         if (currentUser != null) {
-          context.read<HealthRecordsProvider>().loadAllRecords(
-            currentUser.id,
-          );
-          AppLogger.success(
-            'Loading data in background',
-            'LoginScreen',
-          );
+          context.read<HealthRecordsProvider>().loadAllRecords(currentUser.id);
+          AppLogger.success('Loading data in background', 'LoginScreen');
         }
       }
     }
