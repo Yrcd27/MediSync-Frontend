@@ -397,14 +397,13 @@ class ViewBloodPressureScreen extends StatelessWidget {
     bool isDark,
     HealthRecordsProvider provider,
   ) {
-    Color statusColor = AppColors.success;
-    String status = 'Normal';
+    Color borderColor = AppColors.bloodPressure;
     if (record.systolic >= 140 || record.diastolic >= 90) {
-      statusColor = AppColors.error;
-      status = 'High';
+      borderColor = AppColors.error;
     } else if (record.systolic >= 120 || record.diastolic >= 80) {
-      statusColor = AppColors.warning;
-      status = 'Elevated';
+      borderColor = AppColors.warning;
+    } else {
+      borderColor = AppColors.success;
     }
 
     return Container(
@@ -413,7 +412,12 @@ class ViewBloodPressureScreen extends StatelessWidget {
       decoration: BoxDecoration(
         color: isDark ? AppColors.darkSurface : AppColors.surface,
         borderRadius: AppSpacing.borderRadiusMd,
-        border: Border(left: BorderSide(color: statusColor, width: 4)),
+        border: Border(
+          left: BorderSide(
+            color: borderColor,
+            width: 4,
+          ),
+        ),
       ),
       child: Row(
         children: [
@@ -423,69 +427,19 @@ class ViewBloodPressureScreen extends StatelessWidget {
               children: [
                 Text(
                   record.bpLevel,
-                  style: AppTypography.title2.copyWith(
-                    color: isDark
-                        ? AppColors.darkTextPrimary
-                        : AppColors.textPrimary,
-                  ),
+                  style: AppTypography.title3,
                 ),
                 const SizedBox(height: AppSpacing.xs),
                 Text(
-                  DateFormat(
-                    'MMM dd, yyyy',
-                  ).format(DateTime.parse(record.testDate)),
+                  'Systolic: ${record.systolic} mmHg | Diastolic: ${record.diastolic} mmHg',
+                  style: AppTypography.body2,
+                ),
+                Text(
+                  DateFormat('MMM dd, yyyy').format(DateTime.parse(record.testDate)),
                   style: AppTypography.caption,
                 ),
               ],
             ),
-          ),
-          Container(
-            padding: const EdgeInsets.symmetric(
-              horizontal: AppSpacing.sm,
-              vertical: AppSpacing.xs,
-            ),
-            decoration: BoxDecoration(
-              color: statusColor.withOpacity(0.15),
-              borderRadius: AppSpacing.borderRadiusFull,
-            ),
-            child: Text(
-              status,
-              style: AppTypography.label2.copyWith(color: statusColor),
-            ),
-          ),
-          PopupMenuButton<String>(
-            onSelected: (value) async {
-              if (value == 'delete') {
-                final confirm = await showDialog<bool>(
-                  context: context,
-                  builder: (ctx) => AlertDialog(
-                    title: const Text('Delete Record'),
-                    content: const Text(
-                      'Are you sure you want to delete this record?',
-                    ),
-                    actions: [
-                      TextButton(
-                        onPressed: () => Navigator.pop(ctx, false),
-                        child: const Text('Cancel'),
-                      ),
-                      TextButton(
-                        onPressed: () => Navigator.pop(ctx, true),
-                        child: Text(
-                          'Delete',
-                          style: TextStyle(color: AppColors.error),
-                        ),
-                      ),
-                    ],
-                  ),
-                );
-                if (confirm == true) {
-                  await provider.deleteBPRecord(record.id);
-                }
-              }
-            },
-            itemBuilder: (ctx) => [
-              const PopupMenuItem(value: 'delete', child: Text('Delete')),
-            ],
           ),
         ],
       ),

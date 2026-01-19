@@ -9,7 +9,6 @@ import '../../../providers/health_records_provider.dart';
 import '../../../providers/auth_provider.dart';
 import '../../../models/fasting_blood_sugar.dart';
 import '../../../widgets/feedback/empty_state.dart';
-import '../../../utils/health_analysis.dart' as health;
 import '../add/add_blood_sugar_screen.dart';
 
 class ViewBloodSugarScreen extends StatelessWidget {
@@ -271,14 +270,9 @@ class ViewBloodSugarScreen extends StatelessWidget {
                           'MMM dd, yyyy',
                         ).format(DateTime.parse(record.testDate));
                         final fbsLevel = record.fbsLevel.toStringAsFixed(0);
-                        final statusData =
-                            health.HealthAnalysis.getBloodSugarStatus(
-                              record.fbsLevel,
-                            );
-                        final status = statusData['status'] as String;
 
                         return LineTooltipItem(
-                          'FBS: $fbsLevel mg/dL\nStatus: $status\n$date',
+                          'FBS: $fbsLevel mg/dL\n$date',
                           TextStyle(
                             color: spot.bar.color,
                             fontWeight: FontWeight.bold,
@@ -322,12 +316,14 @@ class ViewBloodSugarScreen extends StatelessWidget {
     bool isDark,
     HealthRecordsProvider provider,
   ) {
-    // Use centralized status calculation
-    final statusData = health.HealthAnalysis.getBloodSugarStatus(
-      record.fbsLevel,
-    );
-    final status = statusData['status'] as String;
-    final statusColor = statusData['color'] as Color;
+    Color borderColor = AppColors.bloodSugar;
+    if (record.fbsLevel >= 126) {
+      borderColor = AppColors.error;
+    } else if (record.fbsLevel >= 100) {
+      borderColor = AppColors.warning;
+    } else {
+      borderColor = AppColors.success;
+    }
 
     return Container(
       margin: const EdgeInsets.only(bottom: AppSpacing.sm),
@@ -335,7 +331,12 @@ class ViewBloodSugarScreen extends StatelessWidget {
       decoration: BoxDecoration(
         color: isDark ? AppColors.darkSurface : AppColors.surface,
         borderRadius: AppSpacing.borderRadiusMd,
-        border: Border(left: BorderSide(color: statusColor, width: 4)),
+        border: Border(
+          left: BorderSide(
+            color: borderColor,
+            width: 4,
+          ),
+        ),
       ),
       child: Row(
         children: [
@@ -344,62 +345,20 @@ class ViewBloodSugarScreen extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  '${record.fbsLevel.toStringAsFixed(0)} mg/dL',
-                  style: AppTypography.title2,
+                  'FBS: ${record.fbsLevel.toStringAsFixed(0)} mg/dL',
+                  style: AppTypography.title3,
                 ),
                 const SizedBox(height: AppSpacing.xs),
                 Text(
-                  DateFormat(
-                    'MMM dd, yyyy',
-                  ).format(DateTime.parse(record.testDate)),
+                  'Fasting Blood Sugar Level',
+                  style: AppTypography.body2,
+                ),
+                Text(
+                  DateFormat('MMM dd, yyyy').format(DateTime.parse(record.testDate)),
                   style: AppTypography.caption,
                 ),
               ],
             ),
-          ),
-          Container(
-            padding: const EdgeInsets.symmetric(
-              horizontal: AppSpacing.sm,
-              vertical: AppSpacing.xs,
-            ),
-            decoration: BoxDecoration(
-              color: statusColor.withOpacity(0.15),
-              borderRadius: AppSpacing.borderRadiusFull,
-            ),
-            child: Text(
-              status,
-              style: AppTypography.label2.copyWith(color: statusColor),
-            ),
-          ),
-          PopupMenuButton<String>(
-            onSelected: (value) async {
-              if (value == 'delete') {
-                final confirm = await showDialog<bool>(
-                  context: context,
-                  builder: (ctx) => AlertDialog(
-                    title: const Text('Delete Record'),
-                    content: const Text('Are you sure?'),
-                    actions: [
-                      TextButton(
-                        onPressed: () => Navigator.pop(ctx, false),
-                        child: const Text('Cancel'),
-                      ),
-                      TextButton(
-                        onPressed: () => Navigator.pop(ctx, true),
-                        child: Text(
-                          'Delete',
-                          style: TextStyle(color: AppColors.error),
-                        ),
-                      ),
-                    ],
-                  ),
-                );
-                if (confirm == true) await provider.deleteFBSRecord(record.id);
-              }
-            },
-            itemBuilder: (ctx) => [
-              const PopupMenuItem(value: 'delete', child: Text('Delete')),
-            ],
           ),
         ],
       ),

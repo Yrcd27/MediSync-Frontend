@@ -456,38 +456,6 @@ class ViewLipidProfileScreen extends StatelessWidget {
               ],
             ),
           ),
-          PopupMenuButton<String>(
-            onSelected: (value) async {
-              if (value == 'delete') {
-                final confirm = await showDialog<bool>(
-                  context: context,
-                  builder: (ctx) => AlertDialog(
-                    title: const Text('Delete Record'),
-                    content: const Text('Are you sure?'),
-                    actions: [
-                      TextButton(
-                        onPressed: () => Navigator.pop(ctx, false),
-                        child: const Text('Cancel'),
-                      ),
-                      TextButton(
-                        onPressed: () => Navigator.pop(ctx, true),
-                        child: Text(
-                          'Delete',
-                          style: TextStyle(color: AppColors.error),
-                        ),
-                      ),
-                    ],
-                  ),
-                );
-                if (confirm == true) {
-                  await provider.deleteLipidRecord(record.id);
-                }
-              }
-            },
-            itemBuilder: (ctx) => [
-              const PopupMenuItem(value: 'delete', child: Text('Delete')),
-            ],
-          ),
         ],
       ),
     );
