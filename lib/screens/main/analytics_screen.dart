@@ -34,11 +34,11 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Time Range Filter
+                // Time Filter
                 _buildTimeRangeFilter(context),
                 SizedBox(height: AppSpacing.xl),
 
-                // Blood Sugar Trends
+                // Blood Sugar
                 _buildChartSection(
                   context,
                   'Blood Sugar Trends',
@@ -49,7 +49,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
 
                 SizedBox(height: AppSpacing.xl),
 
-                // Blood Pressure Trends
+                // Blood Pressure
                 _buildChartSection(
                   context,
                   'Blood Pressure Trends',
@@ -60,7 +60,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
 
                 SizedBox(height: AppSpacing.xl),
 
-                // Full Blood Count Trends
+                // Blood Count
                 _buildChartSection(
                   context,
                   'Blood Count Trends',
@@ -71,7 +71,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
 
                 SizedBox(height: AppSpacing.xl),
 
-                // Lipid Profile Trends
+                // Lipid Profile
                 _buildChartSection(
                   context,
                   'Lipid Profile Trends',
@@ -82,7 +82,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
 
                 SizedBox(height: AppSpacing.xl),
 
-                // Liver Profile Trends
+                // Liver Function
                 _buildChartSection(
                   context,
                   'Liver Function Trends',
@@ -93,7 +93,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
 
                 SizedBox(height: AppSpacing.xl),
 
-                // Urine Report Trends
+                // Urine Analysis
                 _buildChartSection(
                   context,
                   'Urine Analysis Trends',
@@ -104,7 +104,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
 
                 SizedBox(height: AppSpacing.xl),
 
-                // Statistics Cards
+                // Statistics Summary
                 Text(
                   'Health Statistics',
                   style: AppTypography.headlineSmall.copyWith(
