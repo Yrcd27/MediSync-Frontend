@@ -403,7 +403,9 @@ class ViewBloodPressureScreen extends StatelessWidget {
       decoration: BoxDecoration(
         color: isDark ? AppColors.darkSurface : AppColors.surface,
         borderRadius: AppSpacing.borderRadiusMd,
-        border: Border(left: BorderSide(color: AppColors.bloodPressure, width: 4)),
+        border: Border(
+          left: BorderSide(color: AppColors.bloodPressure, width: 4),
+        ),
       ),
       child: Row(
         children: [
