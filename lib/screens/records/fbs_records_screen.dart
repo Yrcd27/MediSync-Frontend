@@ -69,7 +69,7 @@ class _FbsRecordsScreenState extends State<FbsRecordsScreen> {
 
         final success = await healthProvider.addFBSRecord(
           record,
-          authProvider.currentUser!.id,
+          authProvider.currentUser!,
         );
 
         if (mounted) {

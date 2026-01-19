@@ -6,6 +6,7 @@ import '../models/lipid_profile.dart';
 import '../models/liver_profile.dart';
 import '../models/urine_report.dart';
 import '../models/report.dart';
+import '../models/user.dart';
 import '../services/fasting_blood_sugar_service.dart';
 import '../services/blood_pressure_service.dart';
 import '../services/full_blood_count_service.dart';
@@ -192,9 +193,9 @@ class HealthRecordsProvider with ChangeNotifier {
     }
   }
 
-  Future<bool> addFBSRecord(FastingBloodSugar record, int userId) async {
+  Future<bool> addFBSRecord(FastingBloodSugar record, User user) async {
     try {
-      final newRecord = await _fbsService.addRecord(record, userId);
+      final newRecord = await _fbsService.addRecord(record, user);
       _fbsRecords.add(newRecord);
       // Re-sort after adding new record (by date, then by ID)
       _fbsRecords.sort((a, b) {

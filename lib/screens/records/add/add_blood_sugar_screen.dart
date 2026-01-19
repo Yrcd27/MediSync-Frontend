@@ -74,7 +74,7 @@ class _AddBloodSugarScreenState extends State<AddBloodSugarScreen> {
         imageUrl: null,
       );
 
-      final success = await healthProvider.addFBSRecord(record, user.id);
+      final success = await healthProvider.addFBSRecord(record, user);
 
       if (mounted) {
         if (success) {

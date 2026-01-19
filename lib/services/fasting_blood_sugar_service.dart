@@ -1,4 +1,5 @@
 import '../models/fasting_blood_sugar.dart';
+import '../models/user.dart';
 import '../core/services/api_service.dart';
 import '../core/config/app_config.dart';
 import '../core/utils/app_logger.dart';
@@ -34,12 +35,12 @@ class FastingBloodSugarService {
   /// Add a new FBS record
   Future<FastingBloodSugar> addRecord(
     FastingBloodSugar record,
-    int userId,
+    User user,
   ) async {
     try {
       final response = await _apiService.post(
         AppConfig.addFBSRecord,
-        record.toCreateJson(userId),
+        record.toCreateJson(user),
       );
       final data = _apiService.handleResponse(response);
       return FastingBloodSugar.fromJson(data);

@@ -59,24 +59,22 @@ class _LoginScreenState extends State<LoginScreen> {
       } else if (success && mounted) {
         AppLogger.success('Login successful, loading user data', 'LoginScreen');
 
-        // Load fresh health records for the new user
+        // Navigate to dashboard immediately, load data in background
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (context) => const MainLayout()),
+          (route) => false,
+        );
+
+        // Load fresh health records for the new user in background
         final currentUser = context.read<AuthProvider>().currentUser;
-        if (currentUser != null && mounted) {
-          await context.read<HealthRecordsProvider>().loadAllRecords(
+        if (currentUser != null) {
+          context.read<HealthRecordsProvider>().loadAllRecords(
             currentUser.id,
           );
-        }
-
-        if (mounted) {
           AppLogger.success(
-            'Data loaded, navigating to dashboard',
+            'Loading data in background',
             'LoginScreen',
-          );
-          // Navigate to main layout (dashboard) after successful login
-          Navigator.pushAndRemoveUntil(
-            context,
-            MaterialPageRoute(builder: (context) => const MainLayout()),
-            (route) => false,
           );
         }
       }

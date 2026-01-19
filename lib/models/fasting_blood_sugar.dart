@@ -4,7 +4,8 @@ import 'user.dart';
 /// Backend fields: id, test_date, fbs_level, image_url, user_id
 class FastingBloodSugar {
   final int id;
-  final String testDate; // Backend uses LocalDate, sent as ISO string (YYYY-MM-DD)
+  final String
+  testDate; // Backend uses LocalDate, sent as ISO string (YYYY-MM-DD)
   final double fbsLevel; // Blood sugar level in mg/dL
   final String? imageUrl;
   final User? user;
@@ -42,13 +43,13 @@ class FastingBloodSugar {
     return data;
   }
 
-  /// For creating a new record - backend expects user object with id
-  Map<String, dynamic> toCreateJson(int userId) {
+  /// For creating a new record - backend expects full user object
+  Map<String, dynamic> toCreateJson(User user) {
     return {
       'testDate': testDate,
       'fbsLevel': fbsLevel,
       'imageUrl': imageUrl,
-      'user': {'id': userId},
+      'user': user.toJson(),
     };
   }
 
